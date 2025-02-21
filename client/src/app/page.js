@@ -10,7 +10,7 @@ export default function Home() {
             <input type="text" placeholder="Traveling From" className="p-2 rounded w-40 text-black" />
             <input type="text" placeholder="Traveling To" className="p-2 rounded w-40 text-black" />
             <input type="date" className="p-2 rounded w-40 text-black" />
-            <button className="bg-yellow-500 px-4 py-2 rounded">Search</button>
+            <button className="bg-[#F4A900] px-4 py-2 rounded">Search</button>
           </div>
         </div>
       </div>
