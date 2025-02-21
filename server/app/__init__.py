@@ -3,7 +3,8 @@ from flask_cors import CORS
 from server.app.config import config
 from server.app.extensions import db, migrate, bcrypt, jwt, cors, api, swagger
 # from server.app.routes.auth_routes import auth_bp  # Import existing auth routes
-# from server.app.routes.user_routes import user_bp  # Import new user routes
+from server.app.routes.user_routes import user_bp  # Import new user routes
+from .models import db
 
 def create_app(config_name="default"):
     """Flask application factory."""
@@ -20,5 +21,10 @@ def create_app(config_name="default"):
     swagger.init_app(app)
 
     # Register resources
+    with app.app_context():
+        db.create_all()  # Creates tables if they don't exist
+
+
+    app.register_blueprint(user_bp)
 
     return app

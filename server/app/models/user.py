@@ -1,8 +1,10 @@
-from app.extensions import db, bcrypt
+from server.app.extensions import db, bcrypt
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 from enum import Enum
-from app.utils.serializer_mixin import SerializerMixin  # Import your custom mixin
+from server.app.utils.serializermixin import SerializerMixin
+from server.app.models import db
+
 
 class UserRole(Enum):
     ADMIN = "admin"

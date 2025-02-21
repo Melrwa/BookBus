@@ -14,6 +14,7 @@ flask-bcrypt = "*"
 flasgger = "*"
 flask-restful = "*"
 psycopg2-binary = "*"
+sqlalchemy-serializer = "*"
 
 [dev-packages]
 
