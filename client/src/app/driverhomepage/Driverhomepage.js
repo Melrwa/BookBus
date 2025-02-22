@@ -22,9 +22,9 @@ export default function DriverHomePage() {
           <h1 className="ml-2 text-xl font-bold">Book Bus</h1>
         </div>
         <nav className="flex space-x-6">
-          <Link href="#"><span className="text-white">Home</span></Link>
-          <Link href="#"><span className="text-white">Buses</span></Link>
-          <Link href="#"><span className="text-white">Profile</span></Link>
+          <Link href="/driverhomepage"><span className="text-white">Home</span></Link>
+          <Link href="/buses"><span className="text-white">Buses</span></Link>
+          <Link href="/user"><span className="text-white">Profile</span></Link>
         </nav>
         <button className="bg-[#F4A900] text-black px-4 py-2 rounded">Logout</button>
       </header>
