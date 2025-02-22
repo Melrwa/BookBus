@@ -25,7 +25,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         <Card title="Manage Bookings" color="bg-blue-900" icon="📅" onClick={() => navigateTo('/manage-bookings')} />
         <Card title="Manage Buses" color="bg-green-800" icon="🚌" onClick={() => navigateTo('/adminhomepage/adminmanagebuses')} />
-        <Card title="Manage Drivers" color="bg-blue-900" icon="🧑‍✈️" onClick={() => navigateTo('/manage-drivers')} />
+        <Card title="Manage Drivers" color="bg-blue-900" icon="🧑‍✈️" onClick={() => navigateTo('/adminhomepage/adminmanagedriver')} />
         <Card title="View Transactions" color="bg-red-800" icon="💵" onClick={() => navigateTo('/transactions')} />
         <Card title="User Alert/Reviews" color="bg-purple-800" icon="🔔" onClick={() => navigateTo('/user-alerts')} />
       </div>
