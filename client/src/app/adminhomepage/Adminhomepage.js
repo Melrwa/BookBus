@@ -1,6 +1,14 @@
+"use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 const AdminDashboard = () => {
+  const router = useRouter();
+
+  const navigateTo = (path) => {
+    router.push(path);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-yellow-500 p-6">
       <div className="flex justify-between items-center mb-6">
@@ -15,24 +23,26 @@ const AdminDashboard = () => {
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        <Card title="Manage Bookings" color="bg-blue-900" icon="📅" />
-        <Card title="Manage Buses" color="bg-green-800" icon="🚌" />
-        <Card title="Manage Drivers" color="bg-blue-900" icon="🧑‍✈️" />
-        <Card title="View Transactions" color="bg-red-800" icon="💵" />
-        <Card title="User Alert/Reviews" color="bg-purple-800" icon="🔔" />
+        <Card title="Manage Bookings" color="bg-blue-900" icon="📅" onClick={() => navigateTo('/manage-bookings')} />
+        <Card title="Manage Buses" color="bg-green-800" icon="🚌" onClick={() => navigateTo('/adminhomepage/adminmanagebuses')} />
+        <Card title="Manage Drivers" color="bg-blue-900" icon="🧑‍✈️" onClick={() => navigateTo('/adminhomepage/adminmanagedriver')} />
+        <Card title="View Transactions" color="bg-red-800" icon="💵" onClick={() => navigateTo('/transactions')} />
+        <Card title="User Alert/Reviews" color="bg-purple-800" icon="🔔" onClick={() => navigateTo('/user-alerts')} />
       </div>
     </div>
   );
 };
 
-const Card = ({ title, color, icon }) => {
+const Card = ({ title, color, icon, onClick }) => {
   return (
-    <div className={`${color} text-center text-yellow-500 p-6 rounded-lg shadow-lg`}> 
+    <button 
+      className={`${color} text-center text-yellow-500 p-6 rounded-lg shadow-lg w-full hover:opacity-80 transition`} 
+      onClick={onClick}
+    > 
       <div className="text-5xl mb-4">{icon}</div>
       <h2 className="text-xl font-semibold">{title}</h2>
-    </div>
+    </button>
   );
 };
 
 export default AdminDashboard;
-
