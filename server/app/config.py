@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
@@ -15,6 +16,7 @@ class Config:
 
     # JWT Settings
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)  
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"

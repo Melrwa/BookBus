@@ -6,11 +6,14 @@ from server.app.routes.auth_routes import auth_bp  # Import auth routes
 # from server.app.routes.user_routes import user_bp  # Import user routes
 from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource
 # from server.app.routes.user_resources import UserResource  # Import other resources
+from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
+
 
 def create_app(config_name="default"):
     """Flask application factory."""
     app = Flask(__name__)
     app.config.from_object(config[config_name])  # Load configuration
+    app.config['SWAGGER'] = SWAGGER_CONFIG
 
     # Initialize extensions
     api.init_app(app)

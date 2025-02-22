@@ -67,4 +67,4 @@ class User(db.Model, SerializerMixin):
 
     def generate_token(self):
         """Generates JWT token for the user"""
-        return create_access_token(identity=self.id, expires_delta=timedelta(days=1))
+        return create_access_token(identity=str(self.id), expires_delta=timedelta(days=1))
