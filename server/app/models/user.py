@@ -1,9 +1,11 @@
+from datetime import timedelta
 from server.app.extensions import db, bcrypt
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 from enum import Enum
 from server.app.utils.serializermixin import SerializerMixin
 from server.app.models import db
+from flask_jwt_extended import create_access_token
 
 
 class UserRole(Enum):
@@ -62,3 +64,7 @@ class User(db.Model, SerializerMixin):
         if not phone_number.isdigit() or len(phone_number) < 10:
             raise ValueError("Invalid phone number.")
         return phone_number
+
+    def generate_token(self):
+        """Generates JWT token for the user"""
+        return create_access_token(identity=self.id, expires_delta=timedelta(days=1))
