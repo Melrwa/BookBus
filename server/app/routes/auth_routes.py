@@ -10,10 +10,10 @@ api = Api(auth_bp)  # Attach Flask-RESTful API to the Blueprint
 
 class SignupResource(Resource):
     def post(self):
-        """User Signup with Cloudinary Image Upload"""
-        data = request.form.to_dict()
-        if "picture" in request.files:
-            data["picture"] = request.files["picture"]
+        data = request.get_json()  # Ensure JSON parsing
+        if not data:
+            return {"error": "Invalid or missing JSON body"}, 400
+
         return register_user(data)
 
 

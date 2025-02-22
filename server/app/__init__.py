@@ -4,7 +4,7 @@
 # from server.app.extensions import db, migrate, bcrypt, jwt, cors, api, swagger
 # # from server.app.routes.auth_routes import auth_bp  # Import existing auth routes
 # from server.app.routes.user_routes import user_bp  # Import new user routes
-# from .models import db
+
 # from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource
 
 
@@ -55,13 +55,14 @@ def create_app(config_name="default"):
     app.config.from_object(config[config_name])  # Load configuration
 
     # Initialize extensions
+    api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
     cors.init_app(app)
     swagger.init_app(app)
-    api.init_app(app)
+    
 
     # Register Blueprints for OpenAPI documentation
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -76,6 +77,7 @@ def create_app(config_name="default"):
 
     # Create database tables within app context
     with app.app_context():
+        from server.app.models import User 
         db.create_all()
 
     return app

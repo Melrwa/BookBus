@@ -6,7 +6,7 @@ from enum import Enum
 from server.app.utils.serializermixin import SerializerMixin
 from server.app.models import db
 from flask_jwt_extended import create_access_token
-
+from server.app.extensions import db
 
 class UserRole(Enum):
     ADMIN = "admin"
@@ -35,7 +35,7 @@ class User(db.Model, SerializerMixin):
         self.phone_number = phone_number
         self.password = password  # Calls setter to hash password
         self.picture = picture
-        self.role = UserRole(role)
+        self.role = role if isinstance(role, UserRole) else UserRole(role)
 
     @property
     def password(self):
