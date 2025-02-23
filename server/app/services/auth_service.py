@@ -66,6 +66,12 @@ def login_user(data):
 def logout_user():
     """Logout the current user by blacklisting their token."""
     jti = get_jwt()["jti"]  # Get the JWT ID (unique identifier for the token)
+
+    # Check if the token is already blacklisted
+    if TokenBlacklist.query.filter_by(jti=jti).first():
+        return {"message": "Token is already blacklisted"}, 200
+
+    # Add the token to the blacklist
     blacklisted_token = TokenBlacklist(jti=jti)
     db.session.add(blacklisted_token)
     db.session.commit()

@@ -16,7 +16,10 @@ class Config:
 
     # JWT Settings
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)  
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)  # Access token expiration time
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)  # Refresh token expiration time
+    JWT_BLACKLIST_ENABLED = True  # Enable token blacklisting
+    JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]  # Check both access and refresh tokens
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
