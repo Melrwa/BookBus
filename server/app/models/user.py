@@ -26,8 +26,14 @@ class User(db.Model, SerializerMixin):
     picture = db.Column(db.String(255), nullable=True)  # Cloudinary image URL
     role = db.Column(db.Enum(UserRole), default=UserRole.USER, nullable=False)
 
-    serialize_rules = ("-password_hash",)  # Exclude password from serialization
+     # Add new relationships
+    bookings = db.relationship('Booking', back_populates='user', cascade='all, delete')
+    transactions = db.relationship('Transaction', back_populates='user', cascade='all, delete')
+    driver = db.relationship('Driver', back_populates='user', uselist=False)  # One-to-one relationship
 
+    # Update serialization rules
+    serialize_rules = ("-password_hash", "-bookings.user", "-transactions.user", "-driver.user")
+    
     def __init__(self, fullname, username, email, phone_number, password, picture=None, role="user"):
         self.fullname = fullname
         self.username = username

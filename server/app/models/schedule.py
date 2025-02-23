@@ -19,9 +19,12 @@ class Schedule(db.Model, SerializerMixin):
 
     # Relationships
     bus = db.relationship('Bus', back_populates='schedules')
+       # Add new relationships
+    bookings = db.relationship('Booking', back_populates='schedule', cascade='all, delete')
+    transactions = db.relationship('Transaction', back_populates='schedule', cascade='all, delete')
 
     # Serialization rules
-    serialize_rules = ("-bus_id", "-created_at", "-updated_at")
+    serialize_rules = ("-bus_id", "-created_at", "-updated_at", "-bus.schedules", "-bookings.schedule", "-transactions.schedule")
 
     def __repr__(self):
         return f"<Schedule {self.origin} to {self.destination} - {self.bus.bus_number}>"

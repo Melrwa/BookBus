@@ -8,6 +8,10 @@ from .schedule import Schedule
 from .company import Company
 from .user import User
 from .user import User, UserRole  # Export UserRole
+from .transaction import Transaction
+from .booking import Booking
+from .driver import Driver
 
 # Optional: Export models for easier access
-__all__ = ["Bus", "Schedule", "Company", "User", "UserRole"]
+__all__ = ["Bus", "Schedule", "Company", "User", "UserRole", "Transaction", "Booking", "Driver"]
+

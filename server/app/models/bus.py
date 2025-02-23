@@ -19,9 +19,13 @@ class Bus(db.Model, SerializerMixin):
     # Relationships
     company = db.relationship('Company', back_populates='buses')
     schedules = db.relationship('Schedule', back_populates='bus', cascade='all, delete')
+    driver = db.relationship('Driver', back_populates='bus', uselist=False)  # One-to-one relationship
+    bookings = db.relationship('Booking', back_populates='bus', cascade='all, delete')
+    transactions = db.relationship('Transaction', back_populates='bus', cascade='all, delete')
+
 
     # Serialization rules
-    serialize_rules = ("-company_id", "-created_at", "-updated_at")
+    serialize_rules = ("-company_id", "-created_at", "-updated_at", "-company.buses", "-driver.bus", "-bookings.bus", "-transactions.bus")
 
     def __repr__(self):
         return f"<Bus {self.bus_number} - {self.company.name}>"

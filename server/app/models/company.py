@@ -14,8 +14,12 @@ class Company(db.Model, SerializerMixin):
     # Relationships
     buses = db.relationship('Bus', back_populates='company', cascade='all, delete')
 
+     # Add new relationships
+    transactions = db.relationship('Transaction', back_populates='company', cascade='all, delete')
+
+
     # Serialization rules
-    serialize_rules = ("-created_at", "-updated_at")
+    serialize_rules = ("-created_at", "-updated_at", "-buses.company", "-transactions.company")
 
     def __repr__(self):
         return f"<Company {self.name}>"
