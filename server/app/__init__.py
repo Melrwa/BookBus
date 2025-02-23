@@ -38,7 +38,8 @@ def create_app(config_name="default"):
 
     # Create database tables within app context
     with app.app_context():
-        from server.app.models import User 
+        from server.app.models import bus, schedule, company, user
+
         db.create_all()
 
     return app
