@@ -19,6 +19,54 @@ def seed_data():
         db.session.add_all([company1, company2])
         db.session.commit()
 
+        # Create sample users
+        user1 = User(
+            fullname="John Doe",
+            username="johndoe",
+            email="johndoe@example.com",
+            phone_number="1234567890",
+            password="password123",
+            role=UserRole.USER
+        )
+        user4 = User(
+            fullname="Melki Orwa",
+            username="melki",
+            email="melki@gmail.com",
+            phone_number="0794068340",
+            password="Password123",
+            role=UserRole.ADMIN,
+            company_id=company1.id  # Attach admin to company1
+        )
+        user2 = User(
+            fullname="Jane Smith",
+            username="janesmith",
+            email="janesmith@example.com",
+            phone_number="0987654321",
+            password="password123",
+            role=UserRole.DRIVER,
+            picture="https://example.com/janesmith.jpg"  # Picture is required for drivers
+        )
+        user3 = User(
+            fullname="Mike Johnson",
+            username="mikejohnson",
+            email="mikejohnson@example.com",
+            phone_number="1122334455",
+            password="password123",
+            role=UserRole.DRIVER,
+            picture="https://example.com/mikejohnson.jpg"  # Picture is required for drivers
+        )
+        user5 = User(
+            fullname="Admin Two",
+            username="admin2",
+            email="admin2@example.com",
+            phone_number="1122334456",
+            password="password123",
+            role=UserRole.ADMIN,
+            company_id=company2.id  # Attach admin to company2
+        )
+        db.session.add_all([user1, user2, user3, user4, user5])
+        db.session.commit()
+
         # Create sample buses
         bus1 = Bus(
             bus_number="BUS001",
@@ -58,37 +106,7 @@ def seed_data():
         )
         db.session.add_all([schedule1, schedule2])
         db.session.commit()
-
-        # Create sample users
-        user1 = User(
-            fullname="John Doe",
-            username="johndoe",
-            email="johndoe@example.com",
-            phone_number="1234567890",
-            password="password123",
-            role=UserRole.USER
-        )
-        user2 = User(
-            fullname="Jane Smith",
-            username="janesmith",
-            email="janesmith@example.com",
-            phone_number="0987654321",
-            password="password123",
-            role=UserRole.DRIVER,
-            picture="https://example.com/janesmith.jpg"  # Picture is required for drivers
-        )
-        user3 = User(
-            fullname="Mike Johnson",
-            username="mikejohnson",
-            email="mikejohnson@example.com",
-            phone_number="1122334455",
-            password="password123",
-            role=UserRole.DRIVER,
-            picture="https://example.com/mikejohnson.jpg"  # Picture is required for drivers
-        )
-        db.session.add_all([user1, user2, user3])
-        db.session.commit()
-
+        
         # Create sample drivers
         driver1 = Driver(
             name="Jane Smith",

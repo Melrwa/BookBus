@@ -25,16 +25,21 @@ class User(db.Model, SerializerMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     picture = db.Column(db.String(255), nullable=True)  # Cloudinary image URL
     role = db.Column(db.Enum(UserRole), default=UserRole.USER, nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)  # New field
+
 
      # Add new relationships
     bookings = db.relationship('Booking', back_populates='user', cascade='all, delete')
     transactions = db.relationship('Transaction', back_populates='user', cascade='all, delete')
     driver = db.relationship('Driver', back_populates='user', uselist=False)  # One-to-one relationship
+    company = db.relationship('Company', back_populates='admins')  # New relationship
+
 
     # Update serialization rules
-    serialize_rules = ("-password_hash", "-bookings.user", "-transactions.user", "-driver.user")
+    serialize_rules = ("-password_hash", "-bookings.user", "-transactions.user", "-driver.user", "-company.admins")
 
-    def __init__(self, fullname, username, email, phone_number, password, picture=None, role="user"):
+    def __init__(self, fullname, username, email, phone_number, password, picture=None, role="user", company_id=None):
+        """Create instance of User."""
         self.fullname = fullname
         self.username = username
         self.email = email
@@ -42,6 +47,8 @@ class User(db.Model, SerializerMixin):
         self.password = password  # Calls setter to hash password
         self.picture = picture
         self.role = role if isinstance(role, UserRole) else UserRole(role)
+        self.company_id = company_id  # Add this line
+
 
     @property
     def password(self):
