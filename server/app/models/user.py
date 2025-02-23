@@ -33,7 +33,7 @@ class User(db.Model, SerializerMixin):
 
     # Update serialization rules
     serialize_rules = ("-password_hash", "-bookings.user", "-transactions.user", "-driver.user")
-    
+
     def __init__(self, fullname, username, email, phone_number, password, picture=None, role="user"):
         self.fullname = fullname
         self.username = username
@@ -70,6 +70,13 @@ class User(db.Model, SerializerMixin):
         if not phone_number.isdigit() or len(phone_number) < 10:
             raise ValueError("Invalid phone number.")
         return phone_number
+    
+    @validates("picture")
+    def validate_picture(self, key, picture):
+        """Ensure drivers have a picture."""
+        if self.role == UserRole.DRIVER and not picture:
+            raise ValueError("Drivers must have a picture.")
+        return picture
 
     def generate_token(self):
         """Generates JWT token for the user"""

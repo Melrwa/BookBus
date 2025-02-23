@@ -2,7 +2,7 @@ from datetime import date
 from server.app.extensions import db
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
-from server.app.models.user import User  # Correct import path
+from server.app.models.user import User, UserRole  # Correct import path
 from server.app.models.bus import Bus    # Correct import path
 
 class Driver(db.Model, SerializerMixin):
@@ -42,3 +42,10 @@ class Driver(db.Model, SerializerMixin):
         if years < 0:
             raise ValueError("Years of experience cannot be negative.")
         return years
+    
+    @validates("user")
+    def validate_user(self, key, user):
+        """Ensure the linked user has a picture if they are a driver."""
+        if user.role == UserRole.DRIVER and not user.picture:
+            raise ValueError("Drivers must have a picture.")
+        return user
