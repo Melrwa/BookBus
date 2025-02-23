@@ -12,7 +12,8 @@ from .transaction import Transaction
 from .booking import Booking
 from .driver import Driver
 from .booking_review import BookingReview
+from .tokenblacklist import TokenBlacklist
 
 # Optional: Export models for easier access
-__all__ = ["Bus", "Schedule", "Company", "User", "UserRole", "Transaction", "Booking", "Driver", "BookingReview"]
+__all__ = ["Bus", "Schedule", "Company", "User", "UserRole", "Transaction", "Booking", "Driver", "BookingReview", "TokenBlacklist"]
 

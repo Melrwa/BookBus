@@ -1,9 +1,9 @@
 from flask import Blueprint, request
 from flask_restful import Api, Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flasgger import swag_from
 from server.app.models import User
-from server.app.services.auth_service import register_user, login_user
+from server.app.services.auth_service import register_user, login_user, logout_user
 
 # Create Blueprint for auth routes
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -145,9 +145,37 @@ class MeResource(Resource):
             "role": user.role.value,
             "picture": user.picture,
         }, 200
-    
+class LogoutResource(Resource):
+    @swag_from({
+        'tags': ['auth'],
+        'description': 'Logout the current user',
+        'security': [{'BearerAuth': []}],  # Requires JWT authentication
+        'responses': {
+            '200': {
+                'description': 'User logged out successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'message': {'type': 'string'}
+                    }
+                }
+            },
+            '401': {
+                'description': 'Unauthorized (missing or invalid token)'
+            }
+        }
+    })
+    @jwt_required()  # Enforces JWT authentication
+    def post(self):
+        """Logout the current user."""
+        return logout_user()
+
+
+
+
 
 # Register resources with Flask-RESTful API
 api.add_resource(SignupResource, "/signup")
 api.add_resource(LoginResource, "/login")
 api.add_resource(MeResource, "/me")
+api.add_resource(LogoutResource, "/logout")

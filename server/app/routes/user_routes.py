@@ -176,3 +176,5 @@ class PromoteUserResource(Resource):
 api.add_resource(UserResource, "/<int:user_id>")
 api.add_resource(UserListResource, "/")
 api.add_resource(PromoteUserResource, "/<int:user_id>/promote")
+
+# /api/users/1/promote

@@ -1,7 +1,8 @@
 import cloudinary.uploader
 from server.app import db
-from server.app.models import User, UserRole
+from server.app.models import User, UserRole, TokenBlacklist
 import re
+from flask_jwt_extended import get_jwt
 
 def is_valid_phone_number(phone):
     """Validates phone number format (digits only, 10-15 characters)"""
@@ -61,3 +62,11 @@ def login_user(data):
         return {"error": "Invalid credentials"}, 401
 
     return {"message": "Login successful", "token": user.generate_token()}, 200
+
+def logout_user():
+    """Logout the current user by blacklisting their token."""
+    jti = get_jwt()["jti"]  # Get the JWT ID (unique identifier for the token)
+    blacklisted_token = TokenBlacklist(jti=jti)
+    db.session.add(blacklisted_token)
+    db.session.commit()
+    return {"message": "Successfully logged out"}, 200
