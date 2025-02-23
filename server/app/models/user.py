@@ -49,6 +49,11 @@ class User(db.Model, SerializerMixin):
         self.role = role if isinstance(role, UserRole) else UserRole(role)
         self.company_id = company_id  # Add this line
 
+    def to_dict(self):
+        """Convert the User object to a dictionary, ensuring the role is serialized as a string."""
+        user_dict = super().to_dict()
+        user_dict['role'] = self.role.value  # Convert enum to string
+        return user_dict
 
     @property
     def password(self):
