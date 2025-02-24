@@ -23,7 +23,13 @@ class Driver(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='driver')  # Link to User
 
     # Serialization rules
-    serialize_rules = ('-bus.driver', '-user.driver')  # Avoid circular serialization
+    serialize_rules = ('-bus.driver', '-user.driver',   "-user.company.admins.driver"  )  # Avoid circular serialization
+    
+    def to_dict(self):
+        print("Serializing Driver:", self.name)
+        print("User:", self.user)
+        print("Bus:", self.bus)
+        return super().to_dict()
 
     def age(self):
         """Calculate driver’s age."""

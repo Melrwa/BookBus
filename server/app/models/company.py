@@ -21,7 +21,13 @@ class Company(db.Model, SerializerMixin):
 
 
     # Serialization rules
-    serialize_rules = ("-created_at", "-updated_at", "-buses.company", "-transactions.company", "-admins.company")
+    serialize_rules = ("-created_at", "-updated_at", "-buses.company", "-transactions.company", "-admins.company", '-users.company',  "-admins.driver.bus.company" )
+    
+    def to_dict(self):
+            print("Serializing Company:", self.name)
+            print("Admins:", self.admins)
+            print("Buses:", self.buses)
+            return super().to_dict()
 
     def __repr__(self):
         return f"<Company {self.name}>"

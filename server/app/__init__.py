@@ -1,11 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_restful import Api
 from server.app.config import config
-from server.app.extensions import db, migrate, bcrypt, jwt, cors, api, swagger
+from server.app.extensions import db, migrate, bcrypt, jwt, cors, swagger
 from server.app.routes.auth_routes import auth_bp  # Import auth routes
 from server.app.routes.user_routes import user_bp  # Import user routes
 from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource
 from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource
+from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource
+from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
 
@@ -16,7 +19,6 @@ def create_app(config_name="default"):
     app.config['SWAGGER'] = SWAGGER_CONFIG
 
     # Initialize extensions
-    api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
@@ -24,9 +26,14 @@ def create_app(config_name="default"):
     cors.init_app(app)
     swagger.init_app(app)
 
+    # Initialize Flask-RESTful API
+    api = Api(app)  # Initialize Api with the app
+
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(user_bp, url_prefix="/api/users")  # Match the Blueprint prefix
+    app.register_blueprint(user_bp, url_prefix="/users")  # Match the Blueprint prefix
+    app.register_blueprint(schedule_bp, url_prefix="/schedules")  # Register schedule Blueprint
+    app.register_blueprint(bus_bp, url_prefix="/buses")  # Register bus Blueprint
 
     # Register Flask-RESTful API Resources
     api.add_resource(SignupResource, "/auth/signup")
@@ -37,6 +44,14 @@ def create_app(config_name="default"):
     api.add_resource(UserResource, "/users/<int:user_id>")
     api.add_resource(UserListResource, "/users")
     api.add_resource(PromoteUserResource, "/users/<int:user_id>/promote")
+
+    # Register Schedule and Bus Resources
+    api.add_resource(ScheduleResource, "/schedules/<int:schedule_id>")
+    api.add_resource(ScheduleListResource, "/schedules")
+    api.add_resource(SearchSchedulesResource, "/schedules/search")  # Search endpoint
+
+    api.add_resource(BusResource, "/buses/<int:bus_id>")
+    api.add_resource(BusListResource, "/buses")
 
     # Create database tables within app context
     with app.app_context():

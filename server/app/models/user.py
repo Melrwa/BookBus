@@ -1,20 +1,16 @@
 from datetime import timedelta
-from server.app.extensions import db, bcrypt
-from sqlalchemy.orm import validates
-from sqlalchemy_serializer import SerializerMixin
 from enum import Enum
-from server.app.utils.serializermixin import SerializerMixin
-from server.app.models import db
+from sqlalchemy.orm import validates
+from server.app.extensions import db, bcrypt
 from flask_jwt_extended import create_access_token
-from server.app.extensions import db
 
 class UserRole(Enum):
     ADMIN = "admin"
     DRIVER = "driver"
     USER = "user"
 
-class User(db.Model, SerializerMixin):
-    """User model with authentication and serialization."""
+class User(db.Model):
+    """User model with authentication."""
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -25,18 +21,13 @@ class User(db.Model, SerializerMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     picture = db.Column(db.String(255), nullable=True)  # Cloudinary image URL
     role = db.Column(db.Enum(UserRole), default=UserRole.USER, nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)  # New field
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
 
-
-     # Add new relationships
+    # Relationships
     bookings = db.relationship('Booking', back_populates='user', cascade='all, delete')
     transactions = db.relationship('Transaction', back_populates='user', cascade='all, delete')
     driver = db.relationship('Driver', back_populates='user', uselist=False)  # One-to-one relationship
-    company = db.relationship('Company', back_populates='admins')  # New relationship
-
-
-    # Update serialization rules
-    serialize_rules = ("-password_hash", "-bookings.user", "-transactions.user", "-driver.user", "-company.admins")
+    company = db.relationship('Company', back_populates='admins')
 
     def __init__(self, fullname, username, email, phone_number, password, picture=None, role="user", company_id=None):
         """Create instance of User."""
@@ -46,14 +37,8 @@ class User(db.Model, SerializerMixin):
         self.phone_number = phone_number
         self.password = password  # Calls setter to hash password
         self.picture = picture
-        self.role = role if isinstance(role, UserRole) else UserRole(role)
-        self.company_id = company_id  # Add this line
-
-    def to_dict(self):
-        """Convert the User object to a dictionary, ensuring the role is serialized as a string."""
-        user_dict = super().to_dict()
-        user_dict['role'] = self.role.value  # Convert enum to string
-        return user_dict
+        self.role = UserRole(role)  # Ensure role is converted to UserRole enum
+        self.company_id = company_id
 
     @property
     def password(self):
@@ -63,6 +48,8 @@ class User(db.Model, SerializerMixin):
     @password.setter
     def password(self, plaintext_password):
         """Hashes password before saving."""
+        if len(plaintext_password) < 8:
+            raise ValueError("Password must be at least 8 characters long.")
         self.password_hash = bcrypt.generate_password_hash(plaintext_password).decode("utf-8")
 
     def check_password(self, password):
@@ -82,7 +69,7 @@ class User(db.Model, SerializerMixin):
         if not phone_number.isdigit() or len(phone_number) < 10:
             raise ValueError("Invalid phone number.")
         return phone_number
-    
+
     @validates("picture")
     def validate_picture(self, key, picture):
         """Ensure drivers have a picture."""
@@ -91,5 +78,5 @@ class User(db.Model, SerializerMixin):
         return picture
 
     def generate_token(self):
-        """Generates JWT token for the user"""
+        """Generates JWT token for the user."""
         return create_access_token(identity=str(self.id), expires_delta=timedelta(days=1))

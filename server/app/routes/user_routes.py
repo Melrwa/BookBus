@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 from flask_restful import Api, Resource
-from server.app.models.user import User
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
+from server.app.models import UserRole
 from server.app.services.user_service import (
     get_user_by_id_service,
     get_all_users_service,
@@ -10,7 +10,7 @@ from server.app.services.user_service import (
     promote_to_admin_service
 )
 
-user_bp = Blueprint("user", __name__, url_prefix="/api/users")
+user_bp = Blueprint("user", __name__, url_prefix="/users")
 api = Api(user_bp)
 
 class UserResource(Resource):
@@ -52,7 +52,7 @@ class UserResource(Resource):
         user = get_user_by_id_service(user_id)
         if not user:
             return {"error": "User not found"}, 404
-        return user.to_dict(), 200
+        return user, 200
 
     @swag_from({
         'tags': ['users'],
@@ -84,6 +84,10 @@ class UserResource(Resource):
     @jwt_required()
     def delete(self, user_id):
         """Delete a user by ID."""
+        current_user = get_jwt_identity()
+        if current_user['role'] != UserRole.ADMIN.value:
+            return {"error": "Unauthorized. Only admins can delete users."}, 403
+
         success = delete_user_service(user_id)
         if not success:
             return {"error": "User not found"}, 404
@@ -117,7 +121,7 @@ class UserListResource(Resource):
     def get(self):
         """Get all users."""
         users = get_all_users_service()
-        return [user.to_dict() for user in users], 200
+        return users, 200
 
 class PromoteUserResource(Resource):
     @swag_from({
@@ -167,14 +171,17 @@ class PromoteUserResource(Resource):
     @jwt_required()
     def post(self, user_id):
         """Promote a user to admin."""
+        current_user = get_jwt_identity()
+        if current_user['role'] != UserRole.ADMIN.value:
+            return {"error": "Unauthorized. Only admins can promote users."}, 403
+
         data = request.get_json()
-        user = promote_to_admin_service(user_id, data.get('company_id'))
+        user = promote_to_admin_service(user_id, data.get("company_id"))
         if not user:
             return {"error": "User not found"}, 404
         return user, 200
 
-api.add_resource(UserResource, "/<int:user_id>")
-api.add_resource(UserListResource, "/")
-api.add_resource(PromoteUserResource, "/<int:user_id>/promote")
-
-# /api/users/1/promote
+# Register Resources
+# api.add_resource(UserResource, "/<int:user_id>")
+# api.add_resource(UserListResource, "/")
+# api.add_resource(PromoteUserResource, "/<int:user_id>/promote")

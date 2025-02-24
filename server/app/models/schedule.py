@@ -1,9 +1,8 @@
 from datetime import datetime
-from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 from server.app.extensions import db
 
-class Schedule(db.Model, SerializerMixin):
+class Schedule(db.Model):
     __tablename__ = "schedules"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -19,12 +18,8 @@ class Schedule(db.Model, SerializerMixin):
 
     # Relationships
     bus = db.relationship('Bus', back_populates='schedules')
-       # Add new relationships
     bookings = db.relationship('Booking', back_populates='schedule', cascade='all, delete')
     transactions = db.relationship('Transaction', back_populates='schedule', cascade='all, delete')
-
-    # Serialization rules
-    serialize_rules = ("-bus_id", "-created_at", "-updated_at", "-bus.schedules", "-bookings.schedule", "-transactions.schedule")
 
     def __repr__(self):
         return f"<Schedule {self.origin} to {self.destination} - {self.bus.bus_number}>"
@@ -41,3 +36,9 @@ class Schedule(db.Model, SerializerMixin):
         if price < 0:
             raise ValueError(f"{key} must be a positive value.")
         return price
+
+    # Serialization using Marshmallow
+    def to_dict(self):
+        """Serialize the Schedule instance to a dictionary."""
+        from server.app.schemas.schedule_schema import schedule_schema  # Import the schema
+        return schedule_schema.dump(self)
