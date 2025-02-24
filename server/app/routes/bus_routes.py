@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
-from server.app.models import UserRole
+from server.app.models import UserRole, User
 from server.app.services.bus_service import (
     get_bus_by_id_service,
     get_all_buses_service,
@@ -105,13 +105,27 @@ class BusResource(Resource):
             }
         }
     })
+
+
     @jwt_required()
     def put(self, bus_id):
-        """Update a bus by ID."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN:
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can update buses."}, 403
 
+        # Proceed with updating the bus
         data = request.get_json()
         try:
             bus = update_bus_service(bus_id, data)
@@ -120,7 +134,7 @@ class BusResource(Resource):
 
         if not bus:
             return {"error": "Bus not found"}, 404
-        return bus, 200  # Already serialized by the service
+        return bus, 200
 
     @swag_from({
         'tags': ['buses'],
@@ -152,10 +166,23 @@ class BusResource(Resource):
     @jwt_required()
     def delete(self, bus_id):
         """Delete a bus by ID."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN:
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can delete buses."}, 403
 
+        # Proceed with deleting the bus
         success = delete_bus_service(bus_id)
         if not success:
             return {"error": "Bus not found"}, 404
@@ -227,20 +254,35 @@ class BusListResource(Resource):
             }
         }
     })
+
     @jwt_required()
     def post(self):
-        """Add a new bus."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN:
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can add buses."}, 403
 
+        # Proceed with adding the bus
         data = request.get_json()
         try:
             bus = add_bus_service(data)
         except ValueError as err:
             return {"error": str(err)}, 400
 
-        return bus, 201  # Already serialized by the service
+        return bus, 201
+
+
 
 # # Register Resources
 # api.add_resource(BusResource, "/<int:bus_id>")

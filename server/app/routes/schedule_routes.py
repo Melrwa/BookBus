@@ -1,8 +1,8 @@
-from flask import Blueprint, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
-from server.app.models import UserRole
+from server.app.models import UserRole, User
+from flask import Blueprint, request
 from server.app.services.schedule_service import (
     get_schedule_by_id_service,
     get_all_schedules_service,
@@ -114,11 +114,23 @@ class ScheduleResource(Resource):
     })
     @jwt_required()
     def put(self, schedule_id):
-        """Update a schedule by ID."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN.value:
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can update schedules."}, 403
 
+        # Proceed with updating the schedule
         data = request.get_json()
         try:
             schedule = update_schedule_service(schedule_id, data)
@@ -128,6 +140,7 @@ class ScheduleResource(Resource):
         if not schedule:
             return {"error": "Schedule not found"}, 404
         return schedule, 200
+
 
     @swag_from({
         'tags': ['schedules'],
@@ -155,19 +168,33 @@ class ScheduleResource(Resource):
                 'description': 'Schedule not found'
             }
         }
-    })
+        })
     @jwt_required()
     def delete(self, schedule_id):
         """Delete a schedule by ID."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN.value:
-            return {"error": "Unauthorized. Only admins can delete schedules."}, 403
-
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        print(f"UserRole.ADMIN: {UserRole.ADMIN.value}")  # Print the expected admin role
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
+            return {"error": "Unauthorized. Only admins can delete buses."}, 403
+        # Proceed with deleting the schedule
+        
         success = delete_schedule_service(schedule_id)
         if not success:
             return {"error": "Schedule not found"}, 404
         return {"message": "Schedule deleted successfully"}, 200
-
+    
 class ScheduleListResource(Resource):
     @swag_from({
         'tags': ['schedules'],
@@ -241,13 +268,26 @@ class ScheduleListResource(Resource):
             }
         }
     })
+ 
     @jwt_required()
     def post(self):
-        """Add a new schedule."""
-        current_user = get_jwt_identity()
-        if current_user['role'] != UserRole.ADMIN.value:
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        
+        # Fetch the user from the database
+        current_user = User.query.get(user_id)
+        
+        if not current_user:
+            return {"error": "User not found"}, 404
+        
+        # Debug print to check the role
+        print(f"Current user role: {current_user.role}")
+        
+        # Check if the user is an admin
+        if current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can add schedules."}, 403
 
+        # Proceed with adding the schedule
         data = request.get_json()
         try:
             schedule = add_schedule_service(data)
@@ -255,7 +295,7 @@ class ScheduleListResource(Resource):
             return {"error": str(err)}, 400
 
         return schedule, 201
-
+    
 class SearchSchedulesResource(Resource):
     @swag_from({
         'tags': ['schedules'],

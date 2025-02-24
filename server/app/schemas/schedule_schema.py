@@ -22,3 +22,4 @@ class ScheduleSchema(SQLAlchemyAutoSchema):
 # Initialize the schema
 schedule_schema = ScheduleSchema()
 schedules_schema = ScheduleSchema(many=True)  # For serializing multiple schedules
+

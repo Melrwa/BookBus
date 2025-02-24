@@ -8,7 +8,7 @@ class Bus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bus_number = db.Column(db.String(50), nullable=False, unique=True)
     capacity = db.Column(db.Integer, nullable=False)
-    seats_available = db.Column(db.Integer, nullable=False)  # Track available seats
+    seats_available = db.Column(db.Integer, nullable=True)  # Track available seats
     image_url = db.Column(db.String(255), nullable=True)  # Bus picture
     route = db.Column(db.String(255), nullable=False)  # General route (e.g., "Nairobi - Mombasa")
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
