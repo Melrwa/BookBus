@@ -10,6 +10,8 @@ from server.app.routes.user_routes import UserResource, UserListResource, Promot
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
+from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource  # Import driver routes
+
 
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
@@ -37,6 +39,7 @@ def create_app(config_name="default"):
     app.register_blueprint(schedule_bp, url_prefix="/schedules")  # Register schedule Blueprint
     app.register_blueprint(bus_bp, url_prefix="/buses")  # Register bus Blueprint
     app.register_blueprint(transaction_bp, url_prefix="/transactions")  # Register transaction Blueprint
+    app.register_blueprint(driver_bp, url_prefix="/drivers")  # Register driver Blueprint
 
 
     # Register Flask-RESTful API Resources
@@ -59,6 +62,10 @@ def create_app(config_name="default"):
 
     api.add_resource(TransactionResource, "/transactions/<int:transaction_id>")
     api.add_resource(TransactionListResource, "/transactions")
+
+    # Register Driver Resources
+    api.add_resource(DriverResource, "/drivers/<int:driver_id>")
+    api.add_resource(DriverListResource, "/drivers")
 
     # Create database tables within app context
     with app.app_context():
