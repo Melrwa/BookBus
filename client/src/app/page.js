@@ -54,7 +54,7 @@ export default function Home() {
                             <p className="text-green-400 font-semibold">VIP: kshs 1800</p>
                             <p className="text-red-400 font-semibold">Normal: kshs 1600</p>
                         </div>
-                        <button className="bg-red-500 px-4 py-2 rounded">Select</button>
+                        <a href ="/bookingbus" className="bg-red-500 px-4 py-2 rounded">Select</a>
                     </div>
                     <p className="text-white text-sm mt-2">Available Seats: <span className="bg-red-600 px-2 py-1 rounded text-white">23</span></p>
                 </div>
