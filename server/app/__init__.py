@@ -9,6 +9,8 @@ from server.app.routes.auth_routes import SignupResource, LoginResource, MeResou
 from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
+from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
+
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
 
@@ -34,6 +36,8 @@ def create_app(config_name="default"):
     app.register_blueprint(user_bp, url_prefix="/users")  # Match the Blueprint prefix
     app.register_blueprint(schedule_bp, url_prefix="/schedules")  # Register schedule Blueprint
     app.register_blueprint(bus_bp, url_prefix="/buses")  # Register bus Blueprint
+    app.register_blueprint(transaction_bp, url_prefix="/transactions")  # Register transaction Blueprint
+
 
     # Register Flask-RESTful API Resources
     api.add_resource(SignupResource, "/auth/signup")
@@ -52,6 +56,9 @@ def create_app(config_name="default"):
 
     api.add_resource(BusResource, "/buses/<int:bus_id>")
     api.add_resource(BusListResource, "/buses")
+
+    api.add_resource(TransactionResource, "/transactions/<int:transaction_id>")
+    api.add_resource(TransactionListResource, "/transactions")
 
     # Create database tables within app context
     with app.app_context():

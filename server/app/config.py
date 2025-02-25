@@ -24,6 +24,11 @@ class Config:
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
+
+     # Pagination Settings
+    PAGINATION_PER_PAGE = int(os.getenv("PAGINATION_PER_PAGE", 10))  # Default items per page
+    PAGINATION_MAX_PER_PAGE = int(os.getenv("PAGINATION_MAX_PER_PAGE", 100))  # Max items per page
+
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
