@@ -1,26 +1,31 @@
+
 export default function Home() {
     return (
         <div className="bg-black text-white min-h-screen">
             {/* Navbar */}
             <nav className="bg-gray-900 py-4 px-6 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <img src="/bus-logo.png" alt="Bus Logo" className="h-10" />
+                    <img src="https://res.cloudinary.com/dbujmywdy/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1740389136/minimal-abstract-logo-bus-icon-school-bus-vector-silhouette-isolated-design-template_653669-2867_u57azg.jpg" alt="Bus Logo" className="h-10" />
                     <span className="text-2xl font-bold text-white">Book Bus</span>
                 </div>
                 <div className="flex gap-6">
                     <a href="#" className="text-white hover:text-yellow-500">Home</a>
                     <a href="/bookings" className="text-white hover:text-yellow-500">Bookings</a>
-                    <a href="#aboutus" className="text-white hover:text-yellow-500">About Us</a>
-                    <a href="#" className="text-white hover:text-yellow-500">Contacts</a>
+                    <a href="/aboutus" className="text-white hover:text-yellow-500">About Us</a>
+
                 </div>
                 <div className="flex gap-4">
                     <a href = "/signup"className="bg-[#F4A900] text-black px-4 py-2 rounded">Sign Up</a>
                     <a href="/login" className="bg-[#F4A900] text-black px-4 py-2 rounded">Login</a>
+                    <a href="/adminhomepage" className="bg-[#F4A900] text-black px-4 py-2 rounded">Admin Services</a>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <div className="relative h-[400px] bg-cover bg-center" style={{ backgroundImage: "url('/bus-background.jpg')" }}>
+                     <div
+                    className="relative h-[400px] bg-cover bg-center"
+                    style={{ backgroundImage: "url('https://res.cloudinary.com/dbujmywdy/image/upload/v1740398298/360_F_780280283_px55r99HxNSvCdLgm8dtw3otS8L5KMZw_augjb2.jpg')" }}
+                    >
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center">
                     <h1 className="text-3xl font-bold text-yellow-500">Bus Booking Services</h1>
                     <p className="text-lg">Home - Bookings</p>
@@ -56,10 +61,8 @@ export default function Home() {
             </div>
 
             {/* About Us Section */}
-            <div id ="aboutus" className="bg-gray-900 p-8 mt-10 text-center">
-                <h2 className="text-2xl font-bold text-yellow-500">About Us</h2>
-                <p className="mt-4 text-lg">We provide seamless and affordable bus travel across major cities.</p>
-                <h3 className="mt-6 text-lg font-semibold">Contact Us</h3>
+            <div className="bg-gray-900 p-8 mt-10 text-center">
+                <h3 className="text-2xl font-bold text-yellow-500">Contact Us</h3>
                 <p>Email: support@busbooking.com</p>
                 <p>Phone: +254 700 000 000</p>
             </div>
