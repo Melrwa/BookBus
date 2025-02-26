@@ -39,6 +39,8 @@ class Booking(db.Model, SerializerMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.travel_time = self.calculate_travel_time  # Auto-set on creation
+        # Debugging: Print the bus_id to verify it's being set
+        print(f"Initializing Booking with bus_id: {self.bus_id}")
 
     @validates("seat_numbers")
     def validate_seat_numbers(self, key, seat_numbers):
@@ -49,9 +51,31 @@ class Booking(db.Model, SerializerMixin):
             raise ValueError("Not enough seats available.")
         return seat_numbers
 
+    @validates("seat_numbers")
+    def validate_seat_numbers(self, key, seat_numbers):
+        """Ensure seat numbers are valid and available."""
+        seats = seat_numbers.split(",")
+        
+        # Fetch the bus object
+        bus = Bus.query.get(self.bus_id)
+        
+        # Check if the bus exists
+        if not bus:
+            raise ValueError(f"Bus with ID {self.bus_id} not found.")
+        
+        # Check if there are enough seats available
+        if len(seats) > bus.seats_available:
+            raise ValueError("Not enough seats available.")
+        
+        return seat_numbers
+    
+
     def update_seats_available(self):
         """Update the bus's seats_available after booking."""
         bus = Bus.query.get(self.bus_id)
+        if not bus:
+            raise ValueError("Bus not found")
+        
         seats_booked = len(self.seat_numbers.split(","))
         bus.seats_available -= seats_booked
         db.session.commit()

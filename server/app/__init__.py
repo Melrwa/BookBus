@@ -5,15 +5,14 @@ from server.app.config import config
 from server.app.extensions import db, migrate, bcrypt, jwt, cors, swagger
 from server.app.routes.auth_routes import auth_bp  # Import auth routes
 from server.app.routes.user_routes import user_bp  # Import user routes
-from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource
-from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource
-from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource
+from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource # Import auth resources
+from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource  # Import user resources
+from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource  # Import bus routes
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
 from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource  # Import driver routes
 from server.app.routes.company_routes import company_bp, CompanyResource, CompanyListResource  # Import company routes
-
-
+from server.app.routes.booking_routes import booking_bp, BookingResource, BookingListResource  # Import booking routes
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
 
@@ -42,9 +41,11 @@ def create_app(config_name="default"):
     app.register_blueprint(transaction_bp, url_prefix="/transactions")  # Register transaction Blueprint
     app.register_blueprint(driver_bp, url_prefix="/drivers")  # Register driver Blueprint
     app.register_blueprint(company_bp, url_prefix="/companies")  # Register company Blueprint
+    app.register_blueprint(booking_bp, url_prefix="/bookings") # Register booking Blueprint
 
 
-    # Register Flask-RESTful API Resources
+
+    # Register auth API Resources
     api.add_resource(SignupResource, "/auth/signup")
     api.add_resource(LoginResource, "/auth/login")
     api.add_resource(MeResource, "/auth/me")
@@ -72,6 +73,10 @@ def create_app(config_name="default"):
     # Register Company Resources
     api.add_resource(CompanyResource, "/companies/<int:company_id>")
     api.add_resource(CompanyListResource, "/companies")
+
+    # Register  Booking Resources
+    api.add_resource(BookingResource, "/<int:booking_id>")
+    api.add_resource(BookingListResource, "/bookings")
 
 
     # Create database tables within app context
