@@ -13,6 +13,7 @@ from server.app.routes.transaction_routes import transaction_bp, TransactionReso
 from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource  # Import driver routes
 from server.app.routes.company_routes import company_bp, CompanyResource, CompanyListResource  # Import company routes
 from server.app.routes.booking_routes import booking_bp, BookingResource, BookingListResource  # Import booking routes
+from server.app.routes.booking_review_routes import booking_review_bp, BookingReviewResource, BookingReviewListResource  # Import booking review routes
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
 
@@ -42,6 +43,7 @@ def create_app(config_name="default"):
     app.register_blueprint(driver_bp, url_prefix="/drivers")  # Register driver Blueprint
     app.register_blueprint(company_bp, url_prefix="/companies")  # Register company Blueprint
     app.register_blueprint(booking_bp, url_prefix="/bookings") # Register booking Blueprint
+    app.register_blueprint(booking_review_bp, url_prefix="/booking_reviews")  # Register booking review Blueprint
 
 
 
@@ -75,8 +77,12 @@ def create_app(config_name="default"):
     api.add_resource(CompanyListResource, "/companies")
 
     # Register  Booking Resources
-    api.add_resource(BookingResource, "/<int:booking_id>")
+    api.add_resource(BookingResource, "/bookings/<int:booking_id>")
     api.add_resource(BookingListResource, "/bookings")
+
+    # Register Booking Review Resources
+    api.add_resource(BookingReviewResource, "/booking_reviews/<int:review_id>")
+    api.add_resource(BookingReviewListResource, "/booking_reviews")
 
 
     # Create database tables within app context
