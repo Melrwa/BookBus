@@ -17,6 +17,7 @@ sqlalchemy-serializer = "*"
 cloudinary = "*"
 marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+sqlalchemy-schemadisplay = "*"
 
 [dev-packages]
 
