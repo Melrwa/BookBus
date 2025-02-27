@@ -9,7 +9,7 @@ class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False # Avoids SQLAlchemy warning
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
