@@ -18,6 +18,7 @@ cloudinary = "*"
 marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 sqlalchemy-schemadisplay = "*"
+gunicorn = "*"
 
 [dev-packages]
 
