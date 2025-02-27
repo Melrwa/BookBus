@@ -4,12 +4,13 @@ from server.app.models import User, UserRole, TokenBlacklist
 import re
 from flask_jwt_extended import get_jwt
 
+from server.app.models.driver import Driver
+
 def is_valid_phone_number(phone):
     """Validates phone number format (digits only, 10-15 characters)"""
     return bool(re.fullmatch(r"^\d{10,15}$", phone))
-
 def register_user(data):
-    """Handles user registration and Cloudinary image upload"""
+    """Handles user registration and Cloudinary image upload."""
     if not data:
         return {"error": "No data received"}, 400
 
@@ -52,8 +53,21 @@ def register_user(data):
     db.session.add(new_user)
     db.session.commit()
 
-    return {"message": "User registered", "token": new_user.generate_token()}, 201
+    # If the user is a driver, create a driver record
+    if new_user.role == UserRole.DRIVER:
+        driver_data = data.get("driverDetails", {})
+        new_driver = Driver(
+            dob=driver_data.get("dob"),
+            gender=driver_data.get("gender"),
+            license_number=driver_data.get("licenseNumber"),
+            accident_record=driver_data.get("accidentRecord"),
+            years_of_experience=driver_data.get("experience"),
+            user_id=new_user.id,
+        )
+        db.session.add(new_driver)
+        db.session.commit()
 
+    return {"message": "User registered", "token": new_user.generate_token()}, 201
 
 def login_user(data):
     """Handles user login"""
