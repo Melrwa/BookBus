@@ -91,7 +91,10 @@ export default function Signup() {
     console.log('Submitting:', finalData);
 
     try {
-      const response = await axios.post('/api/signup', finalData);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`, // Replace with your Flask backend endpoint
+        finalData
+      );
       console.log('Signup successful:', response.data);
 
       // Redirect based on role
