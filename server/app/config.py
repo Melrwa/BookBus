@@ -13,6 +13,11 @@ class Config:
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://your-frontend-url.com").split(",")  # List of allowed origins
+    CORS_METHODS = os.getenv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS").split(",")  # Allowed HTTP methods
+    CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(",")  # Allowed headers
+
+
 
     # JWT Settings
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")

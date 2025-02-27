@@ -23,16 +23,33 @@ def create_app(config_name="default"):
     app.config.from_object(config[config_name])  # Load configuration
     app.config['SWAGGER'] = SWAGGER_CONFIG
 
+
+      # Initialize CORS
+    CORS(
+        app,
+        origins=app.config["CORS_ORIGINS"],
+        methods=app.config["CORS_METHODS"],
+        allow_headers=app.config["CORS_ALLOW_HEADERS"],
+        supports_credentials=True,  # Allow credentials (e.g., cookies, authorization headers)
+    )
+
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    cors.init_app(app)
     swagger.init_app(app)
 
     # Initialize Flask-RESTful API
     api = Api(app)  # Initialize Api with the app
+
+    CORS(
+        app,
+        origins=app.config["CORS_ORIGINS"],
+        methods=app.config["CORS_METHODS"],
+        allow_headers=app.config["CORS_ALLOW_HEADERS"],
+        supports_credentials=True,  # Allow credentials (e.g., cookies, authorization headers)
+    )
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
