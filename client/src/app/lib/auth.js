@@ -38,3 +38,25 @@ export const refreshToken = async () => {
     return null;
   }
 };
+
+
+// lib/auth.js
+export const logout = async () => {
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include", // Include cookies for session-based auth
+    });
+
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
+
+    // Clear any client-side state (e.g., role, token)
+    localStorage.removeItem("role");
+    return true;
+  } catch (error) {
+    console.error("Error logging out:", error);
+    return false;
+  }
+};

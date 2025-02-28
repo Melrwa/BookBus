@@ -1,8 +1,16 @@
 import Link from "next/link";
+import { logout } from "../lib/auth";
 
 export default function UserNav() {
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      window.location.href = "/"; // Redirect to the homepage after logout
+    }
+  };
+
   return (
-    <nav className="bg-black py-4 px-6 flex justify-between items-center">
+    <nav className="bg-gray-900 py-4 px-6 flex justify-between items-center">
       <div className="flex items-center gap-2">
         <img
           src="https://res.cloudinary.com/dbujmywdy/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1740389136/minimal-abstract-logo-bus-icon-school-bus-vector-silhouette-isolated-design-template_653669-2867_u57azg.jpg"
@@ -14,11 +22,13 @@ export default function UserNav() {
           <span className="text-xl font-bold">Bus</span>
         </div>
       </div>
-      <div className="space-x-4 text-[#F4A900]" >
+      <div className="space-x-4">
         <Link href="/">Home</Link>
         <Link href="/bookings">Bookings</Link>
         <Link href="/about">About</Link>
-        <Link href="/logout">Logout</Link>
+        <button onClick={handleLogout} className="text-white hover:text-yellow-500">
+          Logout
+        </button>
       </div>
     </nav>
   );
