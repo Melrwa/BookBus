@@ -1,6 +1,6 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flask_restful import Api, Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, jwt_required, get_jwt_identity, create_access_token
 from flasgger import swag_from
 from server.app.models import User
 from server.app.services.auth_service import register_user, login_user, logout_user
@@ -169,6 +169,17 @@ class LogoutResource(Resource):
     def post(self):
         """Logout the current user."""
         return logout_user()
+    
+
+
+    @jwt_required(refresh=True)
+    def refresh_token():
+        current_user_id = get_jwt_identity()
+        new_token = create_access_token(identity=current_user_id)
+        return jsonify({"token": new_token}), 200
+    
+        
+
 
 
 
