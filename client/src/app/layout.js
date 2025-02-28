@@ -2,7 +2,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useEffect, useState } from "react";
-import { checkSession } from "./lib/auth";
+import { useRouter } from "next/navigation";
+import { checkSession, refreshToken } from "./lib/auth";
 import AdminNav from "@/components/AdminNav";
 import DriverNav from "@/components/DriverNav";
 import UserNav from "@/components/UserNav";
@@ -20,14 +21,48 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({ children }) {
   const [role, setRole] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchSession() {
       const user = await checkSession();
-      if (user) setRole(user.role);
+      if (user) {
+        setRole(user.role);
+
+        // Redirect based on role
+        switch (user.role) {
+          case "admin":
+            router.push("/adminhomepage");
+            break;
+          case "driver":
+            router.push("/driverhomepage");
+            break;
+          case "user":
+            router.push("/userhomepage");
+            break;
+          default:
+            router.push("/"); // Guest homepage
+            break;
+        }
+      } else {
+        router.push("/"); // Redirect to guest homepage if no session
+      }
     }
+
     fetchSession();
-  }, []);
+
+    // Set up token refresh logic
+    const refreshInterval = setInterval(async () => {
+      const newToken = await refreshToken();
+      if (!newToken) {
+        // Redirect to login if token refresh fails
+        router.push("/login");
+      }
+    }, 5 * 60 * 1000); // Refresh every 5 minutes
+
+    // Cleanup interval on unmount
+    return () => clearInterval(refreshInterval);
+  }, [router]);
 
   const renderNav = () => {
     switch (role) {

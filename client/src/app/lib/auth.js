@@ -1,4 +1,4 @@
-// lib/auth.js
+// checkSession function
 export const checkSession = async () => {
     try {
       const response = await fetch("/api/auth/check-session", {
@@ -17,3 +17,24 @@ export const checkSession = async () => {
       return null;
     }
   };
+
+
+// refreshToken function
+export const refreshToken = async () => {
+  try {
+    const response = await fetch("/api/auth/refresh-token", {
+      method: "POST",
+      credentials: "include", // Include cookies for session-based auth
+    });
+
+    if (!response.ok) {
+      throw new Error("Token refresh failed");
+    }
+
+    const data = await response.json();
+    return data.token; // New access token
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return null;
+  }
+};
