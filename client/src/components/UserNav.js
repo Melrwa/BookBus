@@ -23,7 +23,7 @@ export default function UserNav() {
           <span className="text-xl font-bold">Bus</span>
         </div>
       </div>
-      <div className="space-x-4">
+      <div className="space-x-4 text-white">
         <Link href="/">Home</Link>
         <Link href="/bookings">Bookings</Link>
         <Link href="/about">About</Link>

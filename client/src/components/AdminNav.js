@@ -14,7 +14,7 @@ export default function AdminNav() {
           <span className="text-xl font-bold">Bus</span>
         </div>
       </div>
-      <div className="space-x-4">
+      <div className="space-x-4 text-white">
         <Link href="/adminhomepage">Admin Dashboard</Link>
         <Link href="/logout">Logout</Link>
       </div>

@@ -55,12 +55,12 @@ export default function Signup() {
 
     const data = new FormData();
     data.append('file', formData.picture);
-    data.append('upload_preset', 'your_upload_preset'); // Replace with your Cloudinary preset
+    data.append('die72tnkj', 'die72tnkj'); // Replace with your Cloudinary preset
 
     try {
       setUploading(true);
       const response = await axios.post(
-        'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', // Replace with your Cloudinary cloud name
+        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`, // Replace with your Cloudinary cloud name
         data
       );
       setUploading(false);
