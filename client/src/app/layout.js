@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
             break;
         }
       } else {
-        router.push("/"); // Redirect to guest homepage if no session
+        router.push("/signup"); // Redirect to guest homepage if no session
       }
     }
 
@@ -56,9 +56,9 @@ export default function RootLayout({ children }) {
       const newToken = await refreshToken();
       if (!newToken) {
         // Redirect to login if token refresh fails
-        router.push("/login");
+        router.push("/");
       }
-    }, 5 * 60 * 1000); // Refresh every 5 minutes
+    }, 60 * 60 * 1000); // Refresh every 5 minutes
 
     // Cleanup interval on unmount
     return () => clearInterval(refreshInterval);
