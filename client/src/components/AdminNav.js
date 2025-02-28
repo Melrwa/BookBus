@@ -9,7 +9,7 @@ export default function AdminNav() {
           alt="Bus Logo"
           className="h-10"
         />
-        <div className="flex flex-col text-white">
+        <div className="flex flex-col">
           <span className="text-xl font-bold">Book</span>
           <span className="text-xl font-bold">Bus</span>
         </div>

@@ -40,7 +40,7 @@ export const refreshToken = async () => {
 };
 
 
-// lib/auth.js
+// logout function
 export const logout = async () => {
   try {
     const response = await fetch("/api/auth/logout", {

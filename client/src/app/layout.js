@@ -4,10 +4,10 @@ import "./globals.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { checkSession, refreshToken } from "./lib/auth";
-import AdminNav from "@/components/AdminNav";
-import DriverNav from "@/components/DriverNav";
-import UserNav from "@/components/UserNav";
-import GuestNav from "@/components/GuestNav";
+import AdminNav from "../components/AdminNav";
+import DriverNav from "../components/DriverNav";
+import UserNav  from "../components/UserNav";
+import GuestNav from "../components/GuestNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
