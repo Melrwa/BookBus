@@ -30,14 +30,8 @@ def register_user(data):
     if User.query.filter_by(email=data["email"]).first():
         return {"error": "Email already registered"}, 400
 
-    # Handle Cloudinary Image Upload
-    picture_url = None
-    if "picture" in data and data["picture"]:
-        try:
-            upload_result = cloudinary.uploader.upload(data["picture"])
-            picture_url = upload_result.get("secure_url")
-        except Exception as e:
-            return {"error": f"Image upload failed: {str(e)}"}, 400
+    # Use the image URL provided by the frontend
+    picture_url = data.get("picture")
 
     # Create user
     new_user = User(
