@@ -40,7 +40,7 @@ class SignupResource(Resource):
                     'type': 'object',
                     'properties': {
                         'message': {'type': 'string'},
-                        'token': {'type': 'string'}
+                        'role': {'type': 'string'}
                     }
                 }
             },
@@ -170,15 +170,60 @@ class LogoutResource(Resource):
         """Logout the current user."""
         return logout_user()
     
-
-
+class RefreshTokenResource(Resource):
+    @swag_from({
+        'tags': ['auth'],
+        'description': 'Refresh access token',
+        'security': [{'BearerAuth': []}],
+        'responses': {
+            '200': {
+                'description': 'Token refreshed successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'token': {'type': 'string'}
+                    }
+                }
+            },
+            '401': {
+                'description': 'Unauthorized (missing or invalid token)'
+            }
+        }
+    })
     @jwt_required(refresh=True)
-    def refresh_token():
+    def post(self):
         current_user_id = get_jwt_identity()
         new_token = create_access_token(identity=current_user_id)
         return jsonify({"token": new_token}), 200
-    
-        
+
+class CheckSessionResource(Resource):
+    @swag_from({
+        'tags': ['auth'],
+        'description': 'Check user session',
+        'security': [{'BearerAuth': []}],
+        'responses': {
+            '200': {
+                'description': 'Session is valid',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'integer'},
+                        'role': {'type': 'string'}
+                    }
+                }
+            },
+            '401': {
+                'description': 'Unauthorized (missing or invalid token)'
+            }
+        }
+    })
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
+        return {"id": user.id, "role": user.role.value}, 200
 
 
 
@@ -190,3 +235,5 @@ api.add_resource(SignupResource, "/signup")
 api.add_resource(LoginResource, "/login")
 api.add_resource(MeResource, "/me")
 api.add_resource(LogoutResource, "/logout")
+api.add_resource(RefreshTokenResource, "/refresh")
+api.add_resource(CheckSessionResource, "/check-session")    

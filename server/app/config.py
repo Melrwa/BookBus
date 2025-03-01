@@ -13,7 +13,7 @@ class Config:
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
-    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://your-frontend-url.com").split(",")  # List of allowed origins
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5001,https://your-frontend-url.com").split(",")  # List of allowed origins
     CORS_METHODS = os.getenv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS").split(",")  # Allowed HTTP methods
     CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(",")  # Allowed headers
 
@@ -25,6 +25,14 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)  # Refresh token expiration time
     JWT_BLACKLIST_ENABLED = True  # Enable token blacklisting
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]  # Check both access and refresh tokens
+    # JWT Cookie Settings
+    JWT_TOKEN_LOCATION = ['cookies']  # Store tokens in cookies
+    JWT_COOKIE_SECURE = False  # Set to True in production (HTTPS only)
+    JWT_COOKIE_CSRF_PROTECT = False  # Set to True if using CSRF protection
+    JWT_ACCESS_COOKIE_NAME = 'access_token'
+    JWT_REFRESH_COOKIE_NAME = 'refresh_token'
+    JWT_COOKIE_SAMESITE = 'Lax'  # Prevents cookies from being sent in cross-site requests
+    
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"

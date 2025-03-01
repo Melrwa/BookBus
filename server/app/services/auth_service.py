@@ -1,14 +1,16 @@
 import cloudinary.uploader
+from flask import jsonify
 from server.app import db
 from server.app.models import User, UserRole, TokenBlacklist
 import re
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, set_access_cookies, set_refresh_cookies
 
 from server.app.models.driver import Driver
 
 def is_valid_phone_number(phone):
     """Validates phone number format (digits only, 10-15 characters)"""
     return bool(re.fullmatch(r"^\d{10,15}$", phone))
+
 def register_user(data):
     """Handles user registration and Cloudinary image upload."""
     if not data:
@@ -61,26 +63,45 @@ def register_user(data):
         db.session.add(new_driver)
         db.session.commit()
 
-    return {"message": "User registered", "token": new_user.generate_token()}, 201
+    # Generate tokens for the newly registered user
+    access_token = create_access_token(identity=new_user.id)
+    refresh_token = create_refresh_token(identity=new_user.id)
+
+    # Create a response with the success message and set cookies
+    response = jsonify({
+        "message": "User registered successfully",
+        "role": new_user.role.value,
+    })
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+
+    return response, 201
 
 def login_user(data):
-    """Handles user login"""
     user = User.query.filter_by(username=data["username"]).first()
     if not user or not user.check_password(data["password"]):
         return {"error": "Invalid credentials"}, 401
 
-    return {"message": "Login successful", "token": user.generate_token()}, 200
+    access_token = create_access_token(identity=user.id)
+    refresh_token = create_refresh_token(identity=user.id)
+
+    response = jsonify({"message": "Login successful", "role": user.role.value})
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+    return response, 200
+
+
+from flask_jwt_extended import unset_jwt_cookies
 
 def logout_user():
-    """Logout the current user by blacklisting their token."""
-    jti = get_jwt()["jti"]  # Get the JWT ID (unique identifier for the token)
-
-    # Check if the token is already blacklisted
+    jti = get_jwt()["jti"]
     if TokenBlacklist.query.filter_by(jti=jti).first():
         return {"message": "Token is already blacklisted"}, 200
 
-    # Add the token to the blacklist
     blacklisted_token = TokenBlacklist(jti=jti)
     db.session.add(blacklisted_token)
     db.session.commit()
-    return {"message": "Successfully logged out"}, 200
+
+    response = jsonify({"message": "Successfully logged out"})
+    unset_jwt_cookies(response)  # Clear JWT cookies
+    return response, 200

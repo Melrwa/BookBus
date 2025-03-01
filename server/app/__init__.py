@@ -5,7 +5,7 @@ from server.app.config import config
 from server.app.extensions import db, migrate, bcrypt, jwt, cors, swagger
 from server.app.routes.auth_routes import auth_bp  # Import auth routes
 from server.app.routes.user_routes import user_bp  # Import user routes
-from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource # Import auth resources
+from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource, CheckSessionResource, RefreshTokenResource# Import auth resources
 from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource  # Import user resources
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource  # Import bus routes
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
@@ -69,6 +69,8 @@ def create_app(config_name="default"):
     api.add_resource(LoginResource, "/auth/login")
     api.add_resource(MeResource, "/auth/me")
     api.add_resource(LogoutResource, "/auth/logout")
+    api.add_resource(RefreshTokenResource, "/auth/refresh")
+    api.add_resource(CheckSessionResource, "/auth/check-session")
 
     api.add_resource(UserResource, "/users/<int:user_id>")
     api.add_resource(UserListResource, "/users")
