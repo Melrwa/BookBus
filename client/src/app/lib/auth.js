@@ -1,31 +1,36 @@
 // checkSession function
 export const checkSession = async () => {
-    try {
-      const response = await fetch("/api/auth/check-session", {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/check-session`,
+      {
         method: "GET",
         credentials: "include", // Include cookies for session-based auth
-      });
-  
-      if (!response.ok) {
-        throw new Error("Session check failed");
       }
-  
-      const data = await response.json();
-      return data; // { role: "admin" | "driver" | "user", user: { ... } }
-    } catch (error) {
-      console.error("Error checking session:", error);
-      return null;
-    }
-  };
+    );
 
+    if (!response.ok) {
+      throw new Error("Session check failed");
+    }
+
+    const data = await response.json();
+    return data; // { role: "admin" | "driver" | "user", user: { ... } }
+  } catch (error) {
+    console.error("Error checking session:", error);
+    return null;
+  }
+};
 
 // refreshToken function
 export const refreshToken = async () => {
   try {
-    const response = await fetch("/api/auth/refresh-token", {
-      method: "POST",
-      credentials: "include", // Include cookies for session-based auth
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/refresh-token`,
+      {
+        method: "POST",
+        credentials: "include", // Include cookies for session-based auth
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Token refresh failed");
@@ -43,10 +48,13 @@ export const refreshToken = async () => {
 // logout function
 export const logout = async () => {
   try {
-    const response = await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include", // Include cookies for session-based auth
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include", // Include cookies for session-based auth
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Logout failed");

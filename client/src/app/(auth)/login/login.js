@@ -1,18 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { FaUnlockAlt } from 'react-icons/fa'; // Unlocking keypad icon
-import { useRouter } from 'next/navigation'; // For redirection
+import { FaUnlockAlt, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
+import { useRouter } from 'next/navigation';
+import { checkSession } from "../../lib/auth"; // Correct relative path
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate inputs
+    if (!username || !password) {
+      setErrorMessage('Please fill in all fields.');
+      return;
+    }
+
+    setLoading(true); // Start loading
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
       // Login request
@@ -21,24 +33,27 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
         credentials: 'include', // Include cookies for session-based auth
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Login failed');
+        // Handle backend validation errors
+        setErrorMessage(data.error || 'Login failed. Please check your credentials.');
+        setLoading(false);
+        return;
       }
 
-      const data = await response.json();
       console.log('Login successful:', data);
 
       // Clear form and show success message
-      setEmail('');
+      setUsername('');
       setPassword('');
       setSuccessMessage('Login successful! Redirecting...');
-      setErrorMessage('');
 
-      // Check session to determine role and redirect
+      // Check session to get user role and redirect
       const sessionData = await checkSession();
       if (sessionData) {
         switch (sessionData.role) {
@@ -57,33 +72,15 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Login error:', error.message);
-      setErrorMessage('Login failed. Please check your credentials.');
-      setSuccessMessage('');
-    }
-  };
-
-  const checkSession = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/check-session`, {
-        method: 'GET',
-        credentials: 'include', // Include cookies for session-based auth
-      });
-
-      if (!response.ok) {
-        throw new Error('Session check failed');
-      }
-
-      const data = await response.json();
-      return data; // { role: "admin" | "driver" | "user", user: { ... } }
-    } catch (error) {
-      console.error('Error checking session:', error);
-      return null;
+      setErrorMessage('Login failed. Please try again.');
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <div className="bg-gray-900 p-10 rounded-xl shadow-lg w-full max-w-lg"> {/* Medium size */}
+      <div className="bg-gray-900 p-10 rounded-xl shadow-lg w-full max-w-lg">
         <h2 className="text-3xl font-bold text-center text-[#F4A900] mb-6 flex items-center justify-center">
           <FaUnlockAlt className="mr-2" /> Log In
         </h2>
@@ -98,15 +95,16 @@ export default function Login() {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          {/* Email Field */}
+          {/* Username Field */}
           <div className="mb-6">
-            <label className="block text-[#F4A900] mb-2">Enter Email</label>
+            <label className="block text-[#F4A900] mb-2">Enter Username</label>
             <input
-              type="email"
-              placeholder="Enter your email"
+              type="text"
+              placeholder="Enter your username"
               className="w-full p-4 bg-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-[#F4A900]"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
 
@@ -119,15 +117,21 @@ export default function Login() {
               className="w-full p-4 bg-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-[#F4A900]"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#F4A900] text-black font-semibold p-4 rounded-md hover:bg-yellow-600 transition"
+            className="w-full bg-[#F4A900] text-black font-semibold p-4 rounded-md hover:bg-yellow-600 transition flex items-center justify-center"
+            disabled={loading}
           >
-            Login
+            {loading ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              'Login'
+            )}
           </button>
         </form>
 

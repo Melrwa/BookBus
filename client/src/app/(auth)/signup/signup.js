@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaCamera, FaUserPlus } from 'react-icons/fa'; // Added FaUserPlus for sign-up icon
+import { FaCamera, FaUserPlus, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
 import { useRouter } from 'next/navigation';
 
 export default function Signup() {
@@ -79,14 +79,17 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate password and confirm password
     if (formData.password !== formData.confirmPassword) {
       setPasswordError('Passwords do not match');
       return;
     }
     setPasswordError('');
 
+    // Upload image to Cloudinary
     let imageUrl = await uploadImageToCloudinary();
 
+    // Prepare final data for submission
     const finalData = {
       ...formData,
       picture: imageUrl || null,
@@ -106,8 +109,17 @@ export default function Signup() {
         }
       );
       const result = await response.json();
+
+      if (!response.ok) {
+        // Handle backend validation errors
+        setErrorMessage(result.error || 'Signup failed. Please try again.');
+        setSuccessMessage('');
+        return;
+      }
+
       console.log('Signup successful:', result);
 
+      // Clear form and show success message
       setSuccessMessage('Signup successful! Redirecting...');
       setErrorMessage('');
       setFormData({
@@ -129,6 +141,7 @@ export default function Signup() {
       });
       setImagePreview(null);
 
+      // Redirect based on role
       setTimeout(() => {
         if (formData.role === 'driver') {
           router.push('/driverhomepage');
@@ -145,7 +158,7 @@ export default function Signup() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <div className="bg-gray-900 p-8 rounded-xl shadow-lg w-full max-w-lg"> {/* Adjusted width */}
+      <div className="bg-gray-900 p-8 rounded-xl shadow-lg w-full max-w-lg">
         <h2 className="text-3xl font-bold text-center text-yellow-500 mb-6 flex items-center justify-center">
           <FaUserPlus className="mr-2" /> Sign Up
         </h2>
@@ -170,6 +183,7 @@ export default function Signup() {
                 className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 value={formData[field]}
                 onChange={handleChange}
+                required
               />
               {field === 'confirmPassword' && passwordError && (
                 <p className="text-red-500 text-sm mt-1">{passwordError}</p>
@@ -188,6 +202,7 @@ export default function Signup() {
                 setFormData({ ...formData, role: e.target.value });
                 setIsDriver(e.target.value === 'driver');
               }}
+              required
             >
               <option value="user">User</option>
               <option value="driver">Driver</option>
@@ -229,6 +244,7 @@ export default function Signup() {
                   className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={formData.driverDetails.dob}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -238,6 +254,7 @@ export default function Signup() {
                   className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={formData.driverDetails.gender}
                   onChange={handleChange}
+                  required
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -252,6 +269,7 @@ export default function Signup() {
                   className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={formData.driverDetails.licenseNumber}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -262,6 +280,7 @@ export default function Signup() {
                   className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={formData.driverDetails.accidentRecord}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -272,6 +291,7 @@ export default function Signup() {
                   className="w-full p-3 bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={formData.driverDetails.experience}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </>
@@ -280,10 +300,14 @@ export default function Signup() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#F4A900] text-black font-semibold p-4 rounded-md hover:bg-green-700 transition"
+            className="w-full bg-[#F4A900] text-black font-semibold p-4 rounded-md hover:bg-green-700 transition flex items-center justify-center"
             disabled={uploading}
           >
-            {uploading ? 'Uploading Image...' : 'Sign Up'}
+            {uploading ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              'Sign Up'
+            )}
           </button>
         </form>
 
