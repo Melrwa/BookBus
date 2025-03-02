@@ -15,11 +15,11 @@ api = Api()
 swagger = Swagger()
 jwt = JWTManager()
 
-# Register JWT callbacks
+# JWT Callbacks
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     """Check if a token is blacklisted."""
-    from server.app.models import TokenBlacklist  # Import here to avoid circular imports
+    from server.app.models import TokenBlacklist  # Avoid circular imports
     jti = jwt_payload["jti"]  # JWT ID (unique identifier for the token)
     return TokenBlacklist.query.filter_by(jti=jti).first() is not None
 

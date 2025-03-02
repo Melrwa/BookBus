@@ -1,8 +1,7 @@
-import cloudinary.uploader
 from server.app import db
 from server.app.models import User, UserRole, TokenBlacklist
 import re
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity
 
 from server.app.models.driver import Driver
 
@@ -66,41 +65,83 @@ def register_user(data):
     access_token = create_access_token(identity=new_user.id)
     refresh_token = create_refresh_token(identity=new_user.id)
 
-    # Create a response with the success message and set cookies
-    response = jsonify({
+    # Return the tokens in the response
+    return {
         "message": "User registered successfully",
         "role": new_user.role.value,
-    })
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
-
-    return response, 201
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }, 201
 
 def login_user(data):
     user = User.query.filter_by(username=data["username"]).first()
     if not user or not user.check_password(data["password"]):
+        print("Invalid credentials for username:", data["username"])  # Debugging
         return {"error": "Invalid credentials"}, 401
 
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
 
-    response = jsonify({"message": "Login successful", "role": user.role.value})
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
-    return response, 200
-
-
-from flask_jwt_extended import unset_jwt_cookies
+    print("Login successful for user:", user.username)  # Debugging
+    return {
+        "message": "Login successful",
+        "role": user.role.value,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }, 200
 
 def logout_user():
-    jti = get_jwt()["jti"]
+    """Logout the current user by blacklisting their token."""
+    jti = get_jwt()["jti"]  # Get the JWT ID (unique identifier for the token)
+
+    # Check if the token is already blacklisted
     if TokenBlacklist.query.filter_by(jti=jti).first():
+        print("Token already blacklisted:", jti)  # Debugging
         return {"message": "Token is already blacklisted"}, 200
 
+    # Add the token to the blacklist
     blacklisted_token = TokenBlacklist(jti=jti)
     db.session.add(blacklisted_token)
     db.session.commit()
 
-    response = jsonify({"message": "Successfully logged out"})
-    unset_jwt_cookies(response)  # Clear JWT cookies
-    return response, 200
+    print("Token blacklisted successfully:", jti)  # Debugging
+    return {"message": "Successfully logged out"}, 200
+
+def refresh_token():
+    """Refresh the current user's access token."""
+    current_user_id = get_jwt_identity()  # Use get_jwt_identity() instead of get_jwt()["sub"]
+    access_token = create_access_token(identity=current_user_id)
+    return {"token": access_token}, 200
+
+def check_session():
+    """Check if the user's session is still valid."""
+    user_id = get_jwt_identity()  # Use get_jwt_identity() instead of get_jwt()["sub"]
+    user = User.query.get(user_id)
+    if not user:
+        return {"error": "User not found"}, 404
+    return {"id": user.id, "role": user.role.value}, 200
+
+def me_service():
+    """Get details of the currently logged-in user."""
+    try:
+        # Debugging: Print the JWT identity and claims
+        user_id = get_jwt_identity()
+        jwt_data = get_jwt()
+        print("User ID from token:", user_id)
+        print("JWT Data:", jwt_data)
+
+        user = User.query.get(int(user_id))
+        if not user:
+            return {"error": "User not found"}, 404
+
+        return {
+            "id": user.id,
+            "fullname": user.fullname,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role.value,
+            "picture": user.picture,
+        }, 200
+    except Exception as e:
+        print("Error in me_service:", e)  # Debugging
+        return {"error": "Invalid token"}, 401

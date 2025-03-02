@@ -1,9 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_restful import Api, Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
-from server.app.models import User
-from server.app.services.auth_service import register_user, login_user, logout_user
+from server.app.services.auth_service import register_user, login_user, logout_user, refresh_token, check_session, me_service
 
 # Create Blueprint for auth routes
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -59,7 +58,6 @@ class SignupResource(Resource):
             return {"error": "Invalid or missing JSON body"}, 400
 
         return register_user(data)
-
 
 class LoginResource(Resource):
     @swag_from({
@@ -129,22 +127,11 @@ class MeResource(Resource):
             }
         }
     })
-    @jwt_required()  # Enforces JWT authentication
+    @jwt_required()
     def get(self):
-        """Get current logged-in user."""
-        user_id = get_jwt_identity()
-        user = User.query.get(int(user_id))
-        if not user:
-            return {"error": "User not found"}, 404
+        """Get details of the currently logged-in user."""
+        return me_service()
 
-        return {
-            "id": user.id,
-            "fullname": user.fullname,
-            "username": user.username,
-            "email": user.email,
-            "role": user.role.value,
-            "picture": user.picture,
-        }, 200
 class LogoutResource(Resource):
     @swag_from({
         'tags': ['auth'],
@@ -165,11 +152,11 @@ class LogoutResource(Resource):
             }
         }
     })
-    @jwt_required()  # Enforces JWT authentication
+    @jwt_required()
     def post(self):
         """Logout the current user."""
         return logout_user()
-    
+
 class RefreshTokenResource(Resource):
     @swag_from({
         'tags': ['auth'],
@@ -192,9 +179,8 @@ class RefreshTokenResource(Resource):
     })
     @jwt_required(refresh=True)
     def post(self):
-        current_user_id = get_jwt_identity()
-        new_token = create_access_token(identity=current_user_id)
-        return jsonify({"token": new_token}), 200
+        """Refresh the access token."""
+        return refresh_token()
 
 class CheckSessionResource(Resource):
     @swag_from({
@@ -219,16 +205,14 @@ class CheckSessionResource(Resource):
     })
     @jwt_required()
     def get(self):
+        """Check if the user's session is still valid."""
+        return check_session()
+
+class Protected(Resource):
+    @jwt_required()
+    def get(self):  # Add self as the first parameter
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        if not user:
-            return {"error": "User not found"}, 404
-        return {"id": user.id, "role": user.role.value}, 200
-
-
-
-
-
+        return jsonify({"message": f"Hello, user {user_id}!"}), 200
 
 # Register resources with Flask-RESTful API
 api.add_resource(SignupResource, "/signup")
@@ -236,4 +220,5 @@ api.add_resource(LoginResource, "/login")
 api.add_resource(MeResource, "/me")
 api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshTokenResource, "/refresh")
-api.add_resource(CheckSessionResource, "/check-session")    
+api.add_resource(CheckSessionResource, "/check-session")
+api.add_resource(Protected, "/protected")  # Protected route for testing
