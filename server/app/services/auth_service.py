@@ -1,5 +1,4 @@
 import cloudinary.uploader
-from flask import jsonify
 from server.app import db
 from server.app.models import User, UserRole, TokenBlacklist
 import re
