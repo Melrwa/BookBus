@@ -50,6 +50,8 @@ def register_user(data):
     # If the user is a driver, create a driver record
     if new_user.role == UserRole.DRIVER:
         driver_data = data.get("driverDetails", {})
+        if 'name' not in driver_data:
+            driver_data['name'] = data['fullname']  # Use the user's fullname as the driver's name
         
         # Validate and convert years_of_experience to an integer
         years_of_experience = driver_data.get("experience")
@@ -62,7 +64,8 @@ def register_user(data):
         # Ensure years_of_experience is not negative
         if years_of_experience is not None and years_of_experience < 0:
             return {"error": "Years of experience cannot be negative."}, 400
-
+        
+     
         new_driver = Driver(
             dob=driver_data.get("dob"),
             gender=driver_data.get("gender"),
