@@ -31,6 +31,7 @@ def expired_token_callback(jwt_header, jwt_payload):
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
     """Handle invalid tokens."""
+    print("Invalid token error:", error)  # Debugging
     return {"message": "Invalid token"}, 401
 
 @jwt.unauthorized_loader

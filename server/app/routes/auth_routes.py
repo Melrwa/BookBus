@@ -212,7 +212,7 @@ class Protected(Resource):
     @jwt_required()
     def get(self):  # Add self as the first parameter
         user_id = get_jwt_identity()
-        return jsonify({"message": f"Hello, user {user_id}!"}), 200
+        return{"message": f"Hello, user {user_id}!"}, 200
 
 # Register resources with Flask-RESTful API
 api.add_resource(SignupResource, "/signup")

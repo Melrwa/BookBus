@@ -3,10 +3,9 @@ from flask_cors import CORS
 from flask_restful import Api
 from server.app.config import config
 from server.app.extensions import db, migrate, bcrypt, jwt, cors, swagger
-from server.app.routes.auth_routes import auth_bp  # Import auth routes
-from server.app.routes.user_routes import user_bp  # Import user routes
-from server.app.routes.auth_routes import SignupResource, LoginResource, MeResource, LogoutResource, CheckSessionResource, RefreshTokenResource, Protected  # Import auth resources
-from server.app.routes.user_routes import UserResource, UserListResource, PromoteUserResource  # Import user resources
+from server.app.models import bus, schedule, company, user, transaction, booking, driver, booking_review, tokenblacklist  # Import models
+from server.app.routes.auth_routes import auth_bp, SignupResource, LoginResource, MeResource, LogoutResource, CheckSessionResource, RefreshTokenResource, Protected# Import auth resources
+from server.app.routes.user_routes import user_bp, UserResource, UserListResource, PromoteUserResource  # Import user resources
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource  # Import bus routes
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
@@ -16,16 +15,16 @@ from server.app.routes.booking_routes import booking_bp, BookingResource, Bookin
 from server.app.routes.booking_review_routes import booking_review_bp, BookingReviewResource, BookingReviewListResource  # Import booking review routes
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
-# Initialize Flask-RESTful API
-api = Api()
 
 def create_app(config_name="default"):
     """Flask application factory."""
     app = Flask(__name__)
     app.config.from_object(config[config_name])  # Load configuration
     app.config['SWAGGER'] = SWAGGER_CONFIG
+   
 
-    # Initialize CORS
+
+      # Initialize CORS
     CORS(
         app,
         origins=app.config["CORS_ORIGINS"],
@@ -41,8 +40,9 @@ def create_app(config_name="default"):
     jwt.init_app(app)
     swagger.init_app(app)
 
-    # Attach Flask-RESTful API to the app
-    api.init_app(app)
+    # Initialize Flask-RESTful API
+    api = Api(app)  # Initialize Api with the app
+
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -52,8 +52,10 @@ def create_app(config_name="default"):
     app.register_blueprint(transaction_bp, url_prefix="/transactions")  # Register transaction Blueprint
     app.register_blueprint(driver_bp, url_prefix="/drivers")  # Register driver Blueprint
     app.register_blueprint(company_bp, url_prefix="/companies")  # Register company Blueprint
-    app.register_blueprint(booking_bp, url_prefix="/bookings")  # Register booking Blueprint
+    app.register_blueprint(booking_bp, url_prefix="/bookings") # Register booking Blueprint
     app.register_blueprint(booking_review_bp, url_prefix="/booking_reviews")  # Register booking review Blueprint
+
+
 
     # Register auth API Resources
     api.add_resource(SignupResource, "/auth/signup")
@@ -87,13 +89,14 @@ def create_app(config_name="default"):
     api.add_resource(CompanyResource, "/companies/<int:company_id>")
     api.add_resource(CompanyListResource, "/companies")
 
-    # Register Booking Resources
+    # Register  Booking Resources
     api.add_resource(BookingResource, "/bookings/<int:booking_id>")
     api.add_resource(BookingListResource, "/bookings")
 
     # Register Booking Review Resources
     api.add_resource(BookingReviewResource, "/booking_reviews/<int:review_id>")
     api.add_resource(BookingReviewListResource, "/booking_reviews")
+
 
     # Create database tables within app context
     with app.app_context():

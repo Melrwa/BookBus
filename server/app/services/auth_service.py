@@ -62,8 +62,8 @@ def register_user(data):
         db.session.commit()
 
     # Generate tokens for the newly registered user
-    access_token = create_access_token(identity=new_user.id)
-    refresh_token = create_refresh_token(identity=new_user.id)
+    access_token = create_access_token(identity=str(new_user.id))  # Convert to string
+    refresh_token = create_refresh_token(identity=str(new_user.id))  # Convert to strin
 
     # Return the tokens in the response
     return {
@@ -79,8 +79,9 @@ def login_user(data):
         print("Invalid credentials for username:", data["username"])  # Debugging
         return {"error": "Invalid credentials"}, 401
 
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    # Convert user.id to a string
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     print("Login successful for user:", user.username)  # Debugging
     return {
@@ -110,7 +111,7 @@ def logout_user():
 def refresh_token():
     """Refresh the current user's access token."""
     current_user_id = get_jwt_identity()  # Use get_jwt_identity() instead of get_jwt()["sub"]
-    access_token = create_access_token(identity=current_user_id)
+    access_token = create_access_token(identity=str(current_user_id))
     return {"token": access_token}, 200
 
 def check_session():
@@ -128,9 +129,10 @@ def me_service():
         user_id = get_jwt_identity()
         jwt_data = get_jwt()
         print("User ID from token:", user_id)
+        print("Type of User ID:", type(user_id))  # Debugging
         print("JWT Data:", jwt_data)
 
-        user = User.query.get(int(user_id))
+        user = User.query.get(int(user_id))  # Convert back to integer for database query
         if not user:
             return {"error": "User not found"}, 404
 
