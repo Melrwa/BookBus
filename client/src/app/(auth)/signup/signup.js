@@ -99,7 +99,7 @@ export default function Signup() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`,
         {
           method: 'POST',
           headers: {
