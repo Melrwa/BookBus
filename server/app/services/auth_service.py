@@ -67,6 +67,7 @@ def register_user(data):
         
      
         new_driver = Driver(
+            name=driver_data['name'], 
             dob=driver_data.get("dob"),
             gender=driver_data.get("gender"),
             license_number=driver_data.get("licenseNumber"),
