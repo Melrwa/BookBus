@@ -13,7 +13,7 @@ class Config:
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
-    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5001,https://your-frontend-url.com").split(",")  # List of allowed origins
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5001,http://localhost:3000").split(",")  # List of allowed origins
     CORS_METHODS = os.getenv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS").split(",")  # Allowed HTTP methods
     CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(",")  # Allowed headers
 
@@ -27,7 +27,7 @@ class Config:
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]  # Check both access and refresh tokens
     # JWT Cookie Settings
     JWT_TOKEN_LOCATION = [ "headers", "cookies" ]  # Store tokens in cookies and headers
-    JWT_COOKIE_SECURE = False  # Set to True in production (HTTPS only)
+    JWT_COOKIE_SECURE = True  # Set to True in production (HTTPS only)
     JWT_COOKIE_CSRF_PROTECT = False  # Set to True if using CSRF protection
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
