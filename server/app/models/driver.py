@@ -42,12 +42,20 @@ class Driver(db.Model, SerializerMixin):
             raise ValueError("License number cannot be empty.")
         return license_number
 
-    @validates("years_of_experience")
-    def validate_years_of_experience(self, key, years):
-        """Ensure years of experience is non-negative."""
-        if years < 0:
-            raise ValueError("Years of experience cannot be negative.")
-        return years
+@validates('years_of_experience')
+def validate_years_of_experience(self, key, years):
+    logging.debug(f"Validating years_of_experience: {years} (type: {type(years)})")
+    
+    if isinstance(years, str):
+        try:
+            years = int(years)
+        except ValueError:
+            raise ValueError("Years of experience must be a valid integer.")
+    
+    if years < 0:
+        raise ValueError("Years of experience cannot be negative.")
+    
+    return years
     
     @validates("user")
     def validate_user(self, key, user):

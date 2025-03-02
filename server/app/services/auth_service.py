@@ -50,12 +50,25 @@ def register_user(data):
     # If the user is a driver, create a driver record
     if new_user.role == UserRole.DRIVER:
         driver_data = data.get("driverDetails", {})
+        
+        # Validate and convert years_of_experience to an integer
+        years_of_experience = driver_data.get("experience")
+        if years_of_experience is not None:
+            try:
+                years_of_experience = int(years_of_experience)
+            except (ValueError, TypeError):
+                return {"error": "Years of experience must be a valid integer."}, 400
+        
+        # Ensure years_of_experience is not negative
+        if years_of_experience is not None and years_of_experience < 0:
+            return {"error": "Years of experience cannot be negative."}, 400
+
         new_driver = Driver(
             dob=driver_data.get("dob"),
             gender=driver_data.get("gender"),
             license_number=driver_data.get("licenseNumber"),
             accident_record=driver_data.get("accidentRecord"),
-            years_of_experience=driver_data.get("experience"),
+            years_of_experience=years_of_experience,  # Pass the validated value
             user_id=new_user.id,
         )
         db.session.add(new_driver)
@@ -63,7 +76,7 @@ def register_user(data):
 
     # Generate tokens for the newly registered user
     access_token = create_access_token(identity=str(new_user.id))  # Convert to string
-    refresh_token = create_refresh_token(identity=str(new_user.id))  # Convert to strin
+    refresh_token = create_refresh_token(identity=str(new_user.id))  # Convert to string
 
     # Return the tokens in the response
     return {
