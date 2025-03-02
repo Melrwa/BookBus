@@ -1,8 +1,7 @@
 // checkSession function
 export const checkSession = async () => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check-session`,
+    const response = await fetch('api/auth/check-session',
       {
         method: "GET",
         credentials: "include", // Include cookies for session-based auth
@@ -25,7 +24,7 @@ export const checkSession = async () => {
 export const refreshToken = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh-token`,
+      'api/auth/refresh-token',
       {
         method: "POST",
         credentials: "include", // Include cookies for session-based auth
@@ -48,8 +47,7 @@ export const refreshToken = async () => {
 // logout function
 export const logout = async () => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`,
+    const response = await fetch('api/auth/logout',
       {
         method: "POST",
         credentials: "include", // Include cookies for session-based auth

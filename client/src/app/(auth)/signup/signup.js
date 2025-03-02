@@ -98,8 +98,7 @@ export default function Signup() {
     console.log('Submitting:', finalData);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`,
+      const response = await fetch('/api/auth/signup',
         {
           method: 'POST',
           headers: {
