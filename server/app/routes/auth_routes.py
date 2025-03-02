@@ -58,6 +58,15 @@ class SignupResource(Resource):
             return {"error": "Invalid or missing JSON body"}, 400
 
         return register_user(data)
+    
+    def options(self):
+        """Handle preflight requests."""
+        response = jsonify({"message": "Preflight request handled"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5001")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
 
 class LoginResource(Resource):
     @swag_from({
