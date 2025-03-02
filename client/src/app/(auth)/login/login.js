@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { FaUnlockAlt, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
 import { useRouter } from 'next/navigation';
-import { checkSession } from "../../lib/auth"; // Correct relative path
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -53,22 +52,20 @@ export default function Login() {
       setPassword('');
       setSuccessMessage('Login successful! Redirecting...');
 
-      // Check session to get user role and redirect
-      const sessionData = await checkSession();
-      if (sessionData) {
-        switch (sessionData.role) {
-          case 'admin':
-            router.push('/adminhomepage');
-            break;
-          case 'driver':
-            router.push('/driverhomepage');
-            break;
-          case 'user':
-            router.push('/userhomepage');
-            break;
-          default:
-            router.push('/');
-        }
+      // Redirect based on role from the login response
+      const role = data.role; // Assuming the role is returned in the login response
+      switch (role) {
+        case 'admin':
+          router.push('/adminhomepage');
+          break;
+        case 'driver':
+          router.push('/driverhomepage');
+          break;
+        case 'user':
+          router.push('/userhomepage');
+          break;
+        default:
+          router.push('/'); // Fallback for unknown roles
       }
     } catch (error) {
       console.error('Login error:', error.message);
