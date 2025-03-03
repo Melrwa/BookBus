@@ -14,12 +14,12 @@ export default function GuestNav() {
           <span className="text-xl font-bold">Bus</span>
         </div>
       </div>
-      <div className="space-x-4 text-white">
+      <div className="space-x-14 text-white">
         <Link class="hover:text-[#F4A900]" href="/">Home</Link>
         <Link class="hover:text-[#F4A900]" href="/bookings">Bookings</Link>
         <Link class="hover:text-[#F4A900]" href="/aboutus">About</Link>
       </div>
-      <div className="space-x-4 text-white">
+      <div className="space-x-6 text-white">
         <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded" href="/signup">Sign Up</Link>
         <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded" href="/login">Login</Link>
         <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded"href="/adminhomepage">Admin Services</Link>
