@@ -364,6 +364,6 @@ class SearchSchedulesResource(Resource):
                 return {"error": "Internal server error"}, 500
 
 # Register Resources
-# api.add_resource(ScheduleResource, "/<int:schedule_id>")
-# api.add_resource(ScheduleListResource, "/")
-# api.add_resource(SearchSchedulesResource, "/search")
+api.add_resource(ScheduleResource, "/<int:schedule_id>")
+api.add_resource(ScheduleListResource, "/")
+api.add_resource(SearchSchedulesResource, "/search")
