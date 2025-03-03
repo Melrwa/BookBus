@@ -4,11 +4,7 @@ from server.app import db
 from server.app.schemas.company_schema import company_schema, companies_schema
 from marshmallow import ValidationError
 
-# server/app/services/company_service.py
-from server.app.models import Company, User, UserRole
-from server.app import db
-from server.app.schemas.company_schema import company_schema, companies_schema
-from marshmallow import ValidationError
+
 
 def add_company_service(data, user_id):
     """Add a new company and promote the user to ADMIN."""

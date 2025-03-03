@@ -13,9 +13,17 @@ def seed_data():
         db.drop_all()
         db.create_all()
 
-        # Create sample companies
-        company1 = Company(name="Express Travelers")
-        company2 = Company(name="Swift Movers")
+        # Create sample companies with license_number and location
+        company1 = Company(
+            name="Express Travelers",
+            license_number="LIC001",  # Unique license number
+            location="Nairobi"  # Company location
+        )
+        company2 = Company(
+            name="Swift Movers",
+            license_number="LIC002",  # Unique license number
+            location="Mombasa"  # Company location
+        )
         db.session.add_all([company1, company2])
         db.session.commit()
 
