@@ -85,10 +85,8 @@ def search_schedules_service(origin, destination, date):
     except ValueError as e:
         # Handle invalid date format
         print(f"Invalid date format: {e}")
-        return {"error": "Invalid date format. Use YYYY-MM-DD."}
+        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
     except Exception as e:
         # Handle other errors (e.g., database issues)
         print(f"Error searching schedules: {e}")
-        return {"error": "Internal server error."}
-    
-
+        return {"error": "Internal server error."}, 500

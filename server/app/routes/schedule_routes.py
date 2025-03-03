@@ -348,16 +348,20 @@ class SearchSchedulesResource(Resource):
     })
   
     def get(self):
-        """Search schedules by origin, destination, and date."""
-        origin = request.args.get('origin')
-        destination = request.args.get('destination')
-        date = request.args.get('date')
+            """Search schedules by origin, destination, and date."""
+            origin = request.args.get('origin')
+            destination = request.args.get('destination')
+            date = request.args.get('date')
 
-        if not origin or not destination or not date:
-            return {"error": "Origin, destination, and date are required."}, 400
+            if not origin or not destination or not date:
+                return {"error": "Origin, destination, and date are required."}, 400
 
-        schedules = search_schedules_service(origin, destination, date)
-        return schedules, 200
+            try:
+                schedules = search_schedules_service(origin, destination, date)
+                return schedules, 200
+            except Exception as e:
+                print(f"Error in SearchSchedulesResource GET: {str(e)}")
+                return {"error": "Internal server error"}, 500
 
 # Register Resources
 # api.add_resource(ScheduleResource, "/<int:schedule_id>")
