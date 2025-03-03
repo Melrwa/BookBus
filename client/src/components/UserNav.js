@@ -27,7 +27,7 @@ export default function UserNav() {
         <Link href="/">Home</Link>
         <Link href="/bookings">Bookings</Link>
         <Link href="/about">About</Link>
-        <button onClick={handleLogout} className="text-white hover:text-yellow-500">
+        <button onClick={handleLogout} className=" hover:text-yellow-500 bg-[#F4A900] text-black px-4 py-2 rounded">
           Logout
         </button>
       </div>

@@ -3,10 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { checkSession, refreshToken } from "./lib/auth";
 import AdminNav from "../components/AdminNav";
 import DriverNav from "../components/DriverNav";
-import UserNav  from "../components/UserNav";
+import UserNav from "../components/UserNav";
 import GuestNav from "../components/GuestNav";
 
 const geistSans = Geist({
@@ -24,44 +23,29 @@ export default function RootLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchSession() {
-      const user = await checkSession();
-      if (user) {
-        setRole(user.role);
+    // Fetch role from localStorage or cookies
+    const storedRole = localStorage.getItem("role"); // Assuming role is stored in localStorage
+    if (storedRole) {
+      setRole(storedRole);
 
-        // Redirect based on role
-        switch (user.role) {
-          case "admin":
-            router.push("/adminhomepage");
-            break;
-          case "driver":
-            router.push("/driverhomepage");
-            break;
-          case "user":
-            router.push("/userhomepage");
-            break;
-          default:
-            router.push("/"); // Guest homepage
-            break;
-        }
-      } else {
-        router.push("/signup"); // Redirect to guest homepage if no session
+      // Redirect based on role
+      switch (storedRole) {
+        case "admin":
+          router.push("/adminhomepage");
+          break;
+        case "driver":
+          router.push("/driverhomepage");
+          break;
+        case "user":
+          router.push("/userhomepage");
+          break;
+        default:
+          router.push("/"); // Guest homepage
+          break;
       }
+    } else {
+      router.push("/"); // Redirect to signup if no role is found
     }
-
-    fetchSession();
-
-    // Set up token refresh logic
-    const refreshInterval = setInterval(async () => {
-      const newToken = await refreshToken();
-      if (!newToken) {
-        // Redirect to login if token refresh fails
-        router.push("/");
-      }
-    }, 60 * 60 * 1000); // Refresh every 5 minutes
-
-    // Cleanup interval on unmount
-    return () => clearInterval(refreshInterval);
   }, [router]);
 
   const renderNav = () => {

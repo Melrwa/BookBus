@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaUnlockAlt, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
+import { FaUnlockAlt, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
@@ -9,7 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -21,7 +21,7 @@ export default function Login() {
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
 
@@ -33,13 +33,12 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
-        credentials: 'include', // Include cookies for session-based auth
+        credentials: 'include',
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle backend validation errors
         setErrorMessage(data.error || 'Login failed. Please check your credentials.');
         setLoading(false);
         return;
@@ -47,14 +46,16 @@ export default function Login() {
 
       console.log('Login successful:', data);
 
+      // Store role in localStorage
+      localStorage.setItem("role", data.role);
+
       // Clear form and show success message
       setUsername('');
       setPassword('');
       setSuccessMessage('Login successful! Redirecting...');
 
-      // Redirect based on role from the login response
-      const role = data.role; // Assuming the role is returned in the login response
-      switch (role) {
+      // Redirect based on role
+      switch (data.role) {
         case 'admin':
           router.push('/adminhomepage');
           break;
@@ -65,13 +66,13 @@ export default function Login() {
           router.push('/userhomepage');
           break;
         default:
-          router.push('/'); // Fallback for unknown roles
+          router.push('/');
       }
     } catch (error) {
       console.error('Login error:', error.message);
       setErrorMessage('Login failed. Please try again.');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 

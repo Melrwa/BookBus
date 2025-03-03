@@ -75,13 +75,14 @@ export default function Signup() {
       return null;
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate password and confirm password
     if (formData.password !== formData.confirmPassword) {
-        setPasswordError('Passwords do not match');
-        return;
+      setPasswordError('Passwords do not match');
+      return;
     }
     setPasswordError('');
 
@@ -90,75 +91,84 @@ export default function Signup() {
 
     // Prepare final data for submission
     const finalData = {
-        ...formData,
-        picture: imageUrl || null,
+      ...formData,
+      picture: imageUrl || null,
     };
 
     // If the user is a driver, ensure the 'name' field is included
     if (finalData.role === 'driver') {
-        finalData.driverDetails = {
-            ...finalData.driverDetails,
-            name: finalData.fullname,  // Use the user's fullname as the driver's name
-        };
+      finalData.driverDetails = {
+        ...finalData.driverDetails,
+        name: finalData.fullname, // Use the user's fullname as the driver's name
+      };
     }
 
     console.log('Submitting:', finalData);
 
     try {
-        const response = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(finalData),
-        });
-        const result = await response.json();
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      });
+      const result = await response.json();
 
-        if (!response.ok) {
-            // Handle backend validation errors
-            setErrorMessage(result.error || 'Signup failed. Please try again.');
-            setSuccessMessage('');
-            return;
-        }
-
-        console.log('Signup successful:', result);
-
-        // Clear form and show success message
-        setSuccessMessage('Signup successful! Redirecting...');
-        setErrorMessage('');
-        setFormData({
-            fullname: '',
-            username: '',
-            email: '',
-            phone_number: '',
-            password: '',
-            confirmPassword: '',
-            role: 'user',
-            picture: null,
-            driverDetails: {
-                dob: '',
-                gender: '',
-                licenseNumber: '',
-                accidentRecord: '',
-                experience: '',
-            },
-        });
-        setImagePreview(null);
-
-        // Redirect based on role
-        setTimeout(() => {
-            if (formData.role === 'driver') {
-                router.push('/driverhomepage');
-            } else {
-                router.push('/');
-            }
-        }, 2000);
-    } catch (error) {
-        console.error('Signup failed:', error.message);
-        setErrorMessage('Signup failed. Please try again.');
+      if (!response.ok) {
+        // Handle backend validation errors
+        setErrorMessage(result.error || 'Signup failed. Please try again.');
         setSuccessMessage('');
+        return;
+      }
+
+      console.log('Signup successful:', result);
+
+      // Store role in localStorage
+      localStorage.setItem('role', finalData.role);
+
+      // Clear form and show success message
+      setSuccessMessage('Signup successful! Redirecting...');
+      setErrorMessage('');
+      setFormData({
+        fullname: '',
+        username: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        confirmPassword: '',
+        role: 'user',
+        picture: null,
+        driverDetails: {
+          dob: '',
+          gender: '',
+          licenseNumber: '',
+          accidentRecord: '',
+          experience: '',
+        },
+      });
+      setImagePreview(null);
+
+      // Redirect based on role
+      switch (finalData.role) {
+        case 'admin':
+          router.push('/adminhomepage');
+          break;
+        case 'driver':
+          router.push('/driverhomepage');
+          break;
+        case 'user':
+          router.push('/userhomepage');
+          break;
+        default:
+          router.push('/'); // Fallback for unknown roles
+      }
+    } catch (error) {
+      console.error('Signup failed:', error.message);
+      setErrorMessage('Signup failed. Please try again.');
+      setSuccessMessage('');
     }
-};
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
