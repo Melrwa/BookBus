@@ -1,57 +1,39 @@
-// import React from 'react'
+"use client";
 
-// export default function Driverhomepage() {
-//   return (
-//     <div>
-//       Driverhomepage
-//     </div>
-//   )
-// }
+import React from "react";
 
-
-import Image from 'next/image';
-import Link from 'next/link';
-
-export default function DriverHomePage() {
+const DriverHomePage = () => {
   return (
-    <div className="bg-gray-200 min-h-screen flex flex-col items-center">
-      {/* Header */}
-      <header className="w-full bg-black text-white flex justify-between items-center px-6 py-4">
-        <div className="flex items-center">
-          <Image src="/logo.png" alt="Book Bus" width={50} height={50} />
-          <h1 className="ml-2 text-xl font-bold">Book Bus</h1>
-        </div>
-        <nav className="flex space-x-6">
-          <Link href="/driverhomepage"><span className="text-white">Home</span></Link>
-          <Link href="/buses"><span className="text-white">Buses</span></Link>
-          <Link href="/user"><span className="text-white">Profile</span></Link>
-        </nav>
-        <button className="bg-[#F4A900] text-black px-4 py-2 rounded">Logout</button>
-      </header>
-
-      {/* Bus Image */}
-      <div className="w-full max-w-4xl mt-6">
-        <Image src="/bus.jpg" alt="Bus" width={800} height={400} className="rounded" />
-      </div>
+    <div className="bg-black min-h-screen text-white">
+    
 
       {/* Bus Details */}
-      <div className="mt-4 bg-black text-[#F4A900] px-6 py-2 text-center text-xl font-bold">NRBMSA01</div>
-
-      {/* Capacity Details */}
-      <div className="flex justify-center mt-4 space-x-8">
-        <div className="text-center bg-gray-800 text-white px-4 py-2 rounded">
-          <p className="text-lg">Capacity</p>
-          <p className="text-xl font-bold text-[#F4A900]">55</p>
+      <div className="max-w-4xl mxmt-8 bg-gray-900 rounded-lg p-4">
+        <img
+          src="/bus-image.jpg"
+          alt="Bus"
+          className="w-full h-80 object-cover rounded"
+        />
+        <div className="text-center my-4 bg-black text-yellow-500 text-lg font-bold py-2">
+          NRBMSA01
         </div>
-        <div className="text-center bg-gray-800 text-white px-4 py-2 rounded">
-          <p className="text-lg">Booked</p>
-          <p className="text-xl font-bold text-[#F4A900]">20</p>
-        </div>
-        <div className="text-center bg-gray-800 text-white px-4 py-2 rounded">
-          <p className="text-lg">Available</p>
-          <p className="text-xl font-bold text-[#F4A900]">35</p>
+        <div className="grid grid-cols-3 gap-4 text-center bg-gray-800 p-4 rounded">
+          <div>
+            <p className="text-white">Capacity</p>
+            <p className="text-yellow-400 text-xl font-bold">55</p>
+          </div>
+          <div>
+            <p className="text-white">Booked</p>
+            <p className="text-yellow-400 text-xl font-bold">20</p>
+          </div>
+          <div>
+            <p className="text-white">Available</p>
+            <p className="text-yellow-400 text-xl font-bold">35</p>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DriverHomePage;
