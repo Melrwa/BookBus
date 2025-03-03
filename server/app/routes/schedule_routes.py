@@ -346,7 +346,7 @@ class SearchSchedulesResource(Resource):
             }
         }
     })
-    @jwt_required()
+  
     def get(self):
         """Search schedules by origin, destination, and date."""
         origin = request.args.get('origin')
