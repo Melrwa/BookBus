@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-export default function Home() {
+export default function Userhomepage() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -202,7 +202,7 @@ export default function Home() {
       </div>
 
       {/* About Us Section */}
-      <div className="bg-gray-900 p-8 mt-10 text-center">
+      <div className="bg-black p-8 mt-10 text-center">
         <h3 className="text-2xl font-bold text-yellow-500">Contact Us</h3>
         <p>Email: support@busbooking.com</p>
         <p>Phone: +254 700 000 000</p>
