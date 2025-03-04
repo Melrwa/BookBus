@@ -17,7 +17,7 @@ export default function Home() {
   
       try {
         const response = await fetch(
-          `/api/schedules/search?origin=Mombasa&destination=Nairobi&date=${currentDate}`
+          `/api/schedules/search?date=${currentDate}`
         );
   
         // Check if the response is JSON
@@ -45,7 +45,7 @@ export default function Home() {
   
     fetchSchedulesForCurrentDate();
   }, []);
-
+  
   // Handle manual search
   const handleSearch = async (e) => {
     e.preventDefault();
