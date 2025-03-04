@@ -183,7 +183,7 @@ class CompanyListResource(Resource):
             }
         }
     })
-    @jwt_required()
+    
     def post(self):
         """Add a new company."""
         # Get the identity from the JWT token
@@ -197,6 +197,3 @@ class CompanyListResource(Resource):
         return company, 201
 
 
-# Register Resources
-# api.add_resource(CompanyResource, "/<int:company_id>")
-# api.add_resource(CompanyListResource, "/")
