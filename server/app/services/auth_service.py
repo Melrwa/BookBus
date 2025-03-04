@@ -1,7 +1,8 @@
 from server.app import db
 from server.app.models import User, UserRole, TokenBlacklist
 import re
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity
+from flask import jsonify, make_response
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 
 from server.app.models.driver import Driver
 
@@ -65,7 +66,6 @@ def register_user(data):
         if years_of_experience is not None and years_of_experience < 0:
             return {"error": "Years of experience cannot be negative."}, 400
         
-     
         new_driver = Driver(
             name=driver_data['name'], 
             dob=driver_data.get("dob"),
@@ -82,13 +82,18 @@ def register_user(data):
     access_token = create_access_token(identity=str(new_user.id))  # Convert to string
     refresh_token = create_refresh_token(identity=str(new_user.id))  # Convert to string
 
-    # Return the tokens in the response
-    return {
+    # Create a response object
+    response = make_response(jsonify({
         "message": "User registered successfully",
         "role": new_user.role.value,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    }, 201
+    }), 201)
+
+    # Set the tokens in HTTP-only cookies
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+
+    return response
+
 
 def login_user(data):
     user = User.query.filter_by(username=data["username"]).first()
@@ -96,17 +101,23 @@ def login_user(data):
         print("Invalid credentials for username:", data["username"])  # Debugging
         return {"error": "Invalid credentials"}, 401
 
-    # Convert user.id to a string
+    # Create access and refresh tokens
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    print("Login successful for user:", user.username)  # Debugging
-    return {
+    # Create a response object
+    response = make_response(jsonify({
         "message": "Login successful",
         "role": user.role.value,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    }, 200
+    }), 200)
+
+    # Set the tokens in HTTP-only cookies
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+
+    print("Login successful for user:", user.username)  # Debugging
+    return response
+
 
 def logout_user():
     """Logout the current user by blacklisting their token."""
@@ -122,14 +133,27 @@ def logout_user():
     db.session.add(blacklisted_token)
     db.session.commit()
 
+    # Create a response object
+    response = make_response(jsonify({"message": "Successfully logged out"}), 200)
+
+    # Clear the JWT cookies
+    unset_jwt_cookies(response)
+
     print("Token blacklisted successfully:", jti)  # Debugging
-    return {"message": "Successfully logged out"}, 200
+    return response
 
 def refresh_token():
     """Refresh the current user's access token."""
     current_user_id = get_jwt_identity()  # Use get_jwt_identity() instead of get_jwt()["sub"]
     access_token = create_access_token(identity=str(current_user_id))
-    return {"token": access_token}, 200
+
+    # Create a response object
+    response = make_response(jsonify({"message": "Token refreshed successfully"}), 200)
+
+    # Set the new access token in an HTTP-only cookie
+    set_access_cookies(response, access_token)
+
+    return response
 
 def check_session():
     """Check if the user's session is still valid."""
