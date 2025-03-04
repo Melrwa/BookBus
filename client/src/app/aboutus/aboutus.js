@@ -9,8 +9,6 @@
 // }
 
 
-import Image from "next/image";
-
 export default function AboutUs() {
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -22,12 +20,10 @@ export default function AboutUs() {
       <div className="grid md:grid-cols-2 gap-8">
         {/* Mission Card */}
         <div className="bg-[#1e1e1e] p-6 rounded-2xl shadow-lg text-center flex flex-col">
-          <Image
-            src="/bus-mission.jpg" // Replace with actual image
+          <img
+            src="https://media.istockphoto.com/id/1189925691/photo/setra-s519hd.jpg?s=612x612&w=0&k=20&c=306VUyVDmK2TY3Qw9xCRtWwranpfgAvXxi25wbe5egs="
             alt="Mission"
-            width={500}
-            height={250}
-            className="rounded-lg mx-auto"
+            className="rounded-lg w-full h-[250px] object-cover"
           />
           <h2 className="text-2xl font-semibold text-[#F4A900] mt-4">Our Mission</h2>
           <p className="mt-2 text-gray-300">
@@ -38,12 +34,10 @@ export default function AboutUs() {
 
         {/* Vision Card */}
         <div className="bg-[#1e1e1e] p-6 rounded-2xl shadow-lg text-center flex flex-col">
-          <Image
-            src="/bus-vision.jpg" // Replace with actual image
+          <img
+            src="https://thumbs.dreamstime.com/b/modern-black-bus-sleek-design-parked-road-scenic-backdrop-trees-sunset-black-bus-parked-343611580.jpg"
             alt="Vision"
-            width={500}
-            height={250}
-            className="rounded-lg mx-auto"
+            className="rounded-lg w-full h-[250px] object-cover"
           />
           <h2 className="text-2xl font-semibold text-[#F4A900] mt-4">Our Vision</h2>
           <p className="mt-2 text-gray-300">
@@ -54,12 +48,10 @@ export default function AboutUs() {
 
       {/* Bottom Row: About Us */}
       <div className="bg-[#1e1e1e] p-8 rounded-2xl shadow-lg text-center mt-8">
-        <Image
-          src="/bus-about.jpg" // Replace with actual image
+        <img
+          src="https://static.vecteezy.com/system/resources/previews/037/471/374/non_2x/ai-generated-touristic-coach-bus-on-highway-road-intercity-regional-domestic-transportation-driving-urban-modern-tour-traveling-travel-journey-ride-moving-transport-concept-public-comfortable-photo.jpg"
           alt="About Us"
-          width={600}
-          height={300}
-          className="rounded-lg mx-auto"
+          className="rounded-lg w-full h-[300px] object-cover"
         />
         <h2 className="text-3xl font-semibold text-[#F4A900] mt-6">Who We Are</h2>
         <p className="mt-4 text-gray-300 max-w-3xl mx-auto">
