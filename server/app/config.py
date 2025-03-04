@@ -26,7 +26,7 @@ class Config:
     JWT_BLACKLIST_ENABLED = True  # Enable token blacklisting
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]  # Check both access and refresh tokens
     # JWT Cookie Settings
-    JWT_TOKEN_LOCATION = [ "headers", "cookies" ]  # Store tokens in cookies and headers
+    JWT_TOKEN_LOCATION = ["cookies", "headers"]  # Store tokens in cookies and headers
     JWT_COOKIE_SECURE = True  # Set to True in production (HTTPS only)
     JWT_COOKIE_CSRF_PROTECT = False  # Set to True if using CSRF protection
     JWT_ACCESS_COOKIE_NAME = 'access_token'
