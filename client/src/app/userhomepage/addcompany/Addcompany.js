@@ -60,7 +60,7 @@ export default function CreateCompany() {
 
   return (
     <div className="bg-black text-white min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-yellow-500 mb-6">Create Company</h1>
+      <h1 className="text-3xl font-bold text-yellow-500 mb-6">Create A Company</h1>
       {successMessage && (
         <div className="bg-green-500 text-white p-3 rounded-md mb-4">
           {successMessage}
