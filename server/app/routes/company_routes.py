@@ -184,6 +184,7 @@ class CompanyListResource(Resource):
         }
     })
     
+    @jwt_required()
     def post(self):
         """Add a new company."""
         # Get the identity from the JWT token
