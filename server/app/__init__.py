@@ -33,6 +33,21 @@ def create_app(config_name="default"):
         supports_credentials=True,  # Allow credentials (e.g., cookies, authorization headers)
     )
 
+# import cloudinary
+# import cloudinary.uploader
+# from cloudinary.utils import cloudinary_url
+
+# # Configuration       
+# cloudinary.config( 
+#     cloud_name = "die72tnkj", 
+#     api_key = "461186116371867", 
+#     api_secret = "QHmu57ad90hULZHeF5-RjahABxk", # Click 'View API Keys' above to copy your API secret
+#     secure=True
+# )
+
+
+
+
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
