@@ -22,7 +22,6 @@ export default function GuestNav() {
       <div className="space-x-6 text-white">
         <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded" href="/signup">Sign Up</Link>
         <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded" href="/login">Login</Link>
-        <Link className=" hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded"href="/adminhomepage">Admin Services</Link>
       </div>
     </nav>
   );
