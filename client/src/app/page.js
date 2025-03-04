@@ -17,7 +17,7 @@ export default function Home() {
   
       try {
         const response = await fetch(
-          `/api/schedules/search?date=${currentDate}`
+          `/api/schedules/by-date?date=${currentDate}`
         );
   
         // Check if the response is JSON
