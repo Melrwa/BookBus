@@ -31,6 +31,7 @@ export default function Login() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+
         },
         body: JSON.stringify({ username, password }),
         credentials: 'include',
@@ -48,6 +49,9 @@ export default function Login() {
 
       // Store role in localStorage
       localStorage.setItem("role", data.role);
+      localStorage.setItem("username", data.username);
+      
+
 
       // Clear form and show success message
       setUsername('');
