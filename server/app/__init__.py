@@ -7,7 +7,7 @@ from server.app.models import bus, schedule, company, user, transaction, booking
 from server.app.routes.auth_routes import auth_bp, SignupResource, LoginResource, MeResource, LogoutResource, CheckSessionResource, RefreshTokenResource, Protected# Import auth resources
 from server.app.routes.user_routes import user_bp, UserResource, UserListResource, PromoteUserResource  # Import user resources
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource  # Import bus routes
-from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource  # Import schedule routes
+from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource, SchedulesByDateResource  # Import schedule routes
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
 from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource  # Import driver routes
 from server.app.routes.company_routes import company_bp, CompanyResource, CompanyListResource  # Import company routes
@@ -74,6 +74,7 @@ def create_app(config_name="default"):
     api.add_resource(ScheduleResource, "/schedules/<int:schedule_id>")
     api.add_resource(ScheduleListResource, "/schedules")
     api.add_resource(SearchSchedulesResource, "/schedules/search")  # Search endpoint
+    api.add_resource(SchedulesByDateResource, "/schedules/date")  # Search by date endpoint
 
     api.add_resource(BusResource, "/buses/<int:bus_id>")
     api.add_resource(BusListResource, "/buses")

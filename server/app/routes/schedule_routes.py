@@ -9,7 +9,8 @@ from server.app.services.schedule_service import (
     add_schedule_service,
     update_schedule_service,
     delete_schedule_service,
-    search_schedules_service
+    search_schedules_service,
+    get_schedules_by_date_service
 )
 
 # Define the Blueprint
@@ -362,8 +363,57 @@ class SearchSchedulesResource(Resource):
             except Exception as e:
                 print(f"Error in SearchSchedulesResource GET: {str(e)}")
                 return {"error": "Internal server error"}, 500
+            
+class SchedulesByDateResource(Resource):
+    @swag_from({
+        'tags': ['schedules'],
+        'description': 'Fetch all schedules for a specific date',
+        'parameters': [
+            {
+                'name': 'date',
+                'in': 'query',
+                'type': 'string',
+                'format': 'date',
+                'required': True,
+                'description': 'Date of the schedules (YYYY-MM-DD)'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'List of schedules for the date',
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer'},
+                            'departure_time': {'type': 'string', 'format': 'date-time'},
+                            'arrival_time': {'type': 'string', 'format': 'date-time'},
+                            'origin': {'type': 'string'},
+                            'destination': {'type': 'string'},
+                            'vip_price': {'type': 'number'},
+                            'business_price': {'type': 'number'},
+                            'bus_id': {'type': 'integer'}
+                        }
+                    }
+                }
+            },
+            '400': {
+                'description': 'Date is required'
+            }
+        }
+    })
+    def get(self):
+        """Fetch all schedules for a specific date."""
+        date = request.args.get("date")
+        if not date:
+            return {"error": "Date is required."}, 400
+
+        schedules = get_schedules_by_date_service(date)
+        return schedules, 200
 
 # Register Resources
 api.add_resource(ScheduleResource, "/<int:schedule_id>")
 api.add_resource(ScheduleListResource, "/")
 api.add_resource(SearchSchedulesResource, "/search")
+api.add_resource(SchedulesByDateResource, "/date")

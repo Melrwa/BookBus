@@ -66,7 +66,6 @@ def delete_schedule_service(schedule_id):
     db.session.commit()
     return True
 
-# New function to search schedules by origin, destination, and date
 
 def search_schedules_service(origin, destination, date):
     """Search schedules by origin, destination, and date."""
@@ -89,4 +88,26 @@ def search_schedules_service(origin, destination, date):
     except Exception as e:
         # Handle other errors (e.g., database issues)
         print(f"Error searching schedules: {e}")
+        return {"error": "Internal server error."}, 500
+
+
+def get_schedules_by_date_service(date):
+    """Fetch all schedules for a specific date."""
+    try:
+        # Convert the date string to a datetime object
+        date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+        
+        # Query schedules that match the date
+        schedules = Schedule.query.filter(
+            db.func.date(Schedule.departure_time) == date_obj
+        ).all()
+        
+        return schedules_schema.dump(schedules)  # Serialize the results
+    except ValueError as e:
+        # Handle invalid date format
+        print(f"Invalid date format: {e}")
+        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
+    except Exception as e:
+        # Handle other errors (e.g., database issues)
+        print(f"Error fetching schedules by date: {e}")
         return {"error": "Internal server error."}, 500
