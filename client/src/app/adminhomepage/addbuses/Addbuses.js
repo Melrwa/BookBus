@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { FaSpinner } from "react-icons/fa";
 
 const AddBusForm = () => {
   const router = useRouter();
@@ -12,6 +13,17 @@ const AddBusForm = () => {
     image: null, // For image upload
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Fetch company_id from localStorage on component mount
+  useEffect(() => {
+    const company_id = localStorage.getItem("company_id");
+    if (company_id) {
+      setFormData((prevData) => ({ ...prevData, company_id }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,9 +47,18 @@ const AddBusForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    if (!validateForm()) {
+      return; // Stop submission if validation fails
+    }
+
+    setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("bus_number", formData.bus_number);
@@ -47,23 +68,39 @@ const AddBusForm = () => {
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
-  
+
       const response = await fetch("/api/buses", {
         method: "POST",
         body: formDataToSend, // Use FormData for file uploads
-        // Do not set Content-Type header manually; the browser will handle it
       });
-  
+
       if (response.ok) {
         const newBus = await response.json();
         console.log("Bus added successfully:", newBus);
-        router.push("/admin/manage-buses"); // Redirect to the manage buses page
+        setSuccessMessage("Bus added successfully! Redirecting...");
+
+        // Reset form fields
+        setFormData({
+          bus_number: "",
+          capacity: "",
+          route: "",
+          company_id: formData.company_id, // Keep the company_id
+          image: null,
+        });
+
+        // Redirect to the manage buses page after 2 seconds
+        setTimeout(() => {
+          router.push("/admin/manage-buses");
+        }, 2000);
       } else {
         const errorData = await response.json();
-        console.error("Failed to add bus:", errorData.error);
+        setErrorMessage(errorData.error || "Failed to add bus. Please try again.");
       }
     } catch (error) {
       console.error("Error adding bus:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,6 +108,16 @@ const AddBusForm = () => {
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-[#F4A900] text-xl font-semibold text-center mb-6">Add a New Bus</h2>
+        {successMessage && (
+          <div className="bg-green-500 text-white p-3 rounded-md mb-4">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="bg-red-500 text-white p-3 rounded-md mb-4">
+            {errorMessage}
+          </div>
+        )}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="text-[#F4A900] block mb-1">Bus Number</label>
@@ -116,7 +163,7 @@ const AddBusForm = () => {
               value={formData.company_id}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white"
-              required
+              readOnly // Make the field read-only
             />
             {errors.company_id && <p className="text-red-500 text-sm mt-1">{errors.company_id}</p>}
           </div>
@@ -132,9 +179,14 @@ const AddBusForm = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#F4A900] text-black p-2 rounded font-semibold"
+            className="w-full bg-[#F4A900] text-black p-2 rounded font-semibold flex items-center justify-center"
+            disabled={loading}
           >
-            Add Bus
+            {loading ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              "Add Bus"
+            )}
           </button>
         </form>
       </div>
