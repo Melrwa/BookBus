@@ -34,7 +34,7 @@ class Config:
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-    
+
 
     # Pagination Settings
     PAGINATION_PER_PAGE = int(os.getenv("PAGINATION_PER_PAGE", 10))  # Default items per page
@@ -44,7 +44,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     # Use local database for development
-    SQLALCHEMY_DATABASE_URI = os.getenv("LOCAL_DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
 class ProductionConfig(Config):
     """Production configuration."""
