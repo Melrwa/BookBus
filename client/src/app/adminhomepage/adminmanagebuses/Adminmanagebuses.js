@@ -14,6 +14,7 @@ const ManageBuses = () => {
   const [errors, setErrors] = useState({});
   const router = useRouter();
 
+
   useEffect(() => {
     fetchBuses();
   }, []);
@@ -22,13 +23,20 @@ const ManageBuses = () => {
     try {
       const response = await fetch("/api/buses");
       const data = await response.json();
-      setBuses(data);
+      console.log("Fetched buses:", data); // Log the response
+      if (Array.isArray(data)) {
+        setBuses(data);
+      } else {
+        console.error("Expected an array of buses, but got:", data);
+        setBuses([]); // Set buses to an empty array to avoid errors
+      }
     } catch (error) {
       console.error("Failed to fetch buses:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleEdit = (index) => {
     setEditIndex(index);
@@ -42,11 +50,10 @@ const ManageBuses = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!editData.company) newErrors.company = "Company name is required.";
-    if (!editData.name) newErrors.name = "Bus name is required.";
-    if (!editData.price) newErrors.price = "Price is required.";
+    if (!editData.bus_number) newErrors.bus_number = "Bus number is required.";
+    if (!editData.capacity) newErrors.capacity = "Capacity is required.";
     if (!editData.route) newErrors.route = "Route is required.";
-    if (!editData.time) newErrors.time = "Time of travel is required.";
+    if (!editData.company_id) newErrors.company_id = "Company ID is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
@@ -117,14 +124,13 @@ const ManageBuses = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {buses.map((bus, index) => (
           <Card key={index} className="bg-gray-900 text-white w-80">
-            <img src={bus.image} alt="Bus" className="w-full h-40 object-cover" />
+            <img src={bus.image_url || "/default-bus.jpg"} alt="Bus" className="w-full h-40 object-cover" />
             <CardContent>
-              <p><span className="font-bold">Company Name:</span> <span className="text-yellow-500">{bus.company}</span></p>
-              <p><span className="font-bold">Name:</span> <span className="text-yellow-500">{bus.name}</span></p>
-              <p><span className="font-bold">Number of seats:</span> <span className="text-yellow-500">{bus.seats}</span> <span className="ml-2 font-bold ">Available seats:</span> <span className="text-yellow-500">{bus.availableSeats}</span></p>
-              <p><span className="font-bold">Price:</span> <span className="text-yellow-500">{bus.price}</span></p>
+              <p><span className="font-bold">Bus Number:</span> <span className="text-yellow-500">{bus.bus_number}</span></p>
+              <p><span className="font-bold">Capacity:</span> <span className="text-yellow-500">{bus.capacity}</span></p>
+              <p><span className="font-bold">Available Seats:</span> <span className="text-yellow-500">{bus.seats_available}</span></p>
               <p><span className="font-bold">Route:</span> <span className="text-yellow-500">{bus.route}</span></p>
-              <p><span className="font-bold">Time Of Travel:</span> <span className="text-yellow-500">{bus.time}</span></p>
+              <p><span className="font-bold">Company ID:</span> <span className="text-yellow-500">{bus.company_id}</span></p>
               <div className="flex justify-between mt-4">
                 <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setDeleteIndex(index)}>
                   Delete
@@ -169,27 +175,19 @@ const ManageBuses = () => {
               <input
                 type="text"
                 className="w-full p-2 border rounded mb-2"
-                value={editData.company}
-                onChange={(e) => handleEditChange("company", e.target.value)}
-                placeholder="Company Name"
+                value={editData.bus_number}
+                onChange={(e) => handleEditChange("bus_number", e.target.value)}
+                placeholder="Bus Number"
               />
-              {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
-              <input
-                type="text"
-                className="w-full p-2 border rounded mb-2"
-                value={editData.name}
-                onChange={(e) => handleEditChange("name", e.target.value)}
-                placeholder="Bus Name"
-              />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.bus_number && <p className="text-red-500 text-sm mt-1">{errors.bus_number}</p>}
               <input
                 type="number"
                 className="w-full p-2 border rounded mb-2"
-                value={editData.price}
-                onChange={(e) => handleEditChange("price", e.target.value)}
-                placeholder="Price"
+                value={editData.capacity}
+                onChange={(e) => handleEditChange("capacity", e.target.value)}
+                placeholder="Capacity"
               />
-              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+              {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
               <input
                 type="text"
                 className="w-full p-2 border rounded mb-2"
@@ -198,14 +196,6 @@ const ManageBuses = () => {
                 placeholder="Route"
               />
               {errors.route && <p className="text-red-500 text-sm mt-1">{errors.route}</p>}
-              <input
-                type="text"
-                className="w-full p-2 border rounded mb-2"
-                value={editData.time}
-                onChange={(e) => handleEditChange("time", e.target.value)}
-                placeholder="Time of Travel"
-              />
-              {errors.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}
               <div className="flex justify-end mt-4">
                 <Button className="bg-gray-500 hover:bg-gray-600" onClick={() => setEditIndex(null)}>
                   Cancel
