@@ -84,11 +84,16 @@ def register_user(data):
     access_token = create_access_token(identity=str(new_user.id))  # Convert to string
     refresh_token = create_refresh_token(identity=str(new_user.id))  # Convert to string
 
-    # Create a response object
+ # Create a response object
     response = make_response(jsonify({
         "message": "User registered successfully",
         "role": new_user.role.value,
-        "company_id": new_user.company_id,  # Include company_id in the response
+        "user": {
+            "id": new_user.id,
+            "username": new_user.username,
+            "company_id": new_user.company_id,  # Include company_id in the response
+            "company_name": new_user.company.name if new_user.company else None,  # Include company_name if available
+        }
     }), 201)
 
     # Set the tokens in HTTP-only cookies
@@ -97,12 +102,13 @@ def register_user(data):
 
     return response
    
-
 def login_user(data):
     user = User.query.filter_by(username=data["username"]).first()
     if not user or not user.check_password(data["password"]):
-        print("Invalid credentials for username:", data["username"])  # Debugging
         return {"error": "Invalid credentials"}, 401
+
+    print("User company_id:", user.company_id)  # Debugging
+    print("User company:", user.company)  # Debugging
 
     # Create access and refresh tokens
     access_token = create_access_token(identity=str(user.id))
@@ -112,14 +118,18 @@ def login_user(data):
     response = make_response(jsonify({
         "message": "Login successful",
         "role": user.role.value,
-        "company_id": user.company_id,  # Include company_id in the response
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "company_id": user.company_id,  # Include company_id in the response
+            "company_name": user.company.name if user.company else None,  # Include company_name if available
+        }
     }), 200)
 
     # Set the tokens in HTTP-only cookies
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
 
-    print("Login successful for user:", user.username)  # Debugging
     return response
 
 
