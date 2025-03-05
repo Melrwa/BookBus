@@ -23,6 +23,11 @@ def get_all_buses_service(company_id=None):
 def add_bus_service(data, image_file=None):
     """Add a new bus with optional image upload."""
     try:
+        # Check if a bus with the same bus_number already exists
+        existing_bus = Bus.query.filter_by(bus_number=data["bus_number"]).first()
+        if existing_bus:
+            raise ValueError(f"A bus with the number {data['bus_number']} already exists.")
+
         # Handle image upload
         image_url = None
         if image_file:

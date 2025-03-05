@@ -165,6 +165,7 @@ class BusResource(Resource):
             return {"error": "Bus not found"}, 404
         return {"message": "Bus deleted successfully"}, 200
 
+
 class BusListResource(Resource):
     @swag_from({
         'tags': ['buses'],
@@ -200,8 +201,6 @@ class BusListResource(Resource):
         buses = get_all_buses_service(current_user.company_id)
         return buses, 200
 
- 
-class BusListResource(Resource):
     @swag_from({
         'tags': ['buses'],
         'description': 'Add a new bus',
@@ -300,7 +299,3 @@ class BusListResource(Resource):
             return {"error": str(err)}, 400
         except Exception as e:
             return {"error": str(e)}, 400
-
-# Register Resources
-# api.add_resource(BusResource, "/<int:bus_id>")
-# api.add_resource(BusListResource, "/")
