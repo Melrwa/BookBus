@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaCamera, FaUserPlus, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
+import { FaCamera, FaUserPlus, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function Signup() {
@@ -124,8 +124,9 @@ export default function Signup() {
 
       console.log('Signup successful:', result);
 
-      // Store role in localStorage
+      // Store role and username in localStorage
       localStorage.setItem('role', finalData.role);
+      localStorage.setItem('username', finalData.username); // Store the username
 
       // Clear form and show success message
       setSuccessMessage('Signup successful! Redirecting...');

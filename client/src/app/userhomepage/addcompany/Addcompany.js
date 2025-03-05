@@ -43,9 +43,9 @@ export default function CreateCompany() {
         throw new Error(data.error || "Failed to create company.");
       }
 
-      // Store the role in localStorage
+      // Store the role and company name in localStorage
       localStorage.setItem("role", "admin"); // Assuming the role is "admin" after creating a company
-
+      localStorage.setItem("companyName", data.name); // Store the company name
 
       // Display success message with company name
       setSuccessMessage(`Company "${data.name}" created successfully!`);
@@ -65,7 +65,6 @@ export default function CreateCompany() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="bg-black text-white min-h-screen p-8">
