@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for redirection
 
-
 export default function CreateCompany() {
   const [name, setName] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
@@ -12,22 +11,23 @@ export default function CreateCompany() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter(); // Initialize useRouter
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!name || !licenseNumber || !location) {
       setError("Please fill in all fields.");
       return;
     }
-  
+
     setLoading(true);
     setError("");
     setSuccessMessage("");
-  
+
     try {
       // Retrieve the JWT token from localStorage or cookies
       const token = localStorage.getItem("token"); // Replace with your token storage method
-  
+
       const response = await fetch("/api/companies", {
         method: "POST",
         headers: {
@@ -36,21 +36,25 @@ export default function CreateCompany() {
         },
         body: JSON.stringify({ name, license_number: licenseNumber, location }),
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to create company.");
       }
-  
+
+      // Store the role in localStorage
+      localStorage.setItem("role", "admin"); // Assuming the role is "admin" after creating a company
+
+
       // Display success message with company name
       setSuccessMessage(`Company "${data.name}" created successfully!`);
-  
+
       // Clear form fields
       setName("");
       setLicenseNumber("");
       setLocation("");
-  
+
       // Redirect to /adminhomepage after 2 seconds
       setTimeout(() => {
         router.push("/adminhomepage");
@@ -61,6 +65,7 @@ export default function CreateCompany() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="bg-black text-white min-h-screen p-8">

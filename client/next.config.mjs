@@ -5,7 +5,7 @@ const nextConfig = {
       return [
         {
           source: "/api/:path*", // Proxy all requests starting with /api
-          destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/:path*`, // Replace with your Flask API base URL
+          destination: "https://bookbus-mooh.onrender.com/:path*", // Replace with your Flask API base URL
         },
       ];
     },
