@@ -41,7 +41,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     # Use local database for development
-    SQLALCHEMY_DATABASE_URI = os.getenv("LOCAL_DATABASE_URL", "postgresql://melkizedek:MELRWA2009@localhost:5432/bus_booking_db")
+    SQLALCHEMY_DATABASE_URI = os.getenv("LOCAL_DATABASE_URL")
 
 class ProductionConfig(Config):
     """Production configuration."""
