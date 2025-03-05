@@ -50,6 +50,7 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("RENDER_DATABASE_URL")
 
 # Dictionary to select the configuration based on ENV
+
 config = {
     "development": DevelopmentConfig,
     "production": ProductionConfig,
