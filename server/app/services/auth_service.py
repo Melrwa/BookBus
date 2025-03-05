@@ -1,5 +1,6 @@
+
 from server.app import db
-from server.app.models import User, UserRole, TokenBlacklist
+from server.app.models import User, UserRole, TokenBlacklist, Company
 import re
 from flask import jsonify, make_response
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
@@ -43,6 +44,7 @@ def register_user(data):
         password=data["password"],  # This automatically hashes the password
         picture=picture_url,
         role=data.get("role", "user"),  # Ensure default role is 'user'
+        company_id=data.get("company_id"),  # Optional company_id
     )
 
     db.session.add(new_user)
@@ -86,6 +88,7 @@ def register_user(data):
     response = make_response(jsonify({
         "message": "User registered successfully",
         "role": new_user.role.value,
+        "company_id": new_user.company_id,  # Include company_id in the response
     }), 201)
 
     # Set the tokens in HTTP-only cookies
@@ -93,7 +96,7 @@ def register_user(data):
     set_refresh_cookies(response, refresh_token)
 
     return response
-
+   
 
 def login_user(data):
     user = User.query.filter_by(username=data["username"]).first()
@@ -109,6 +112,7 @@ def login_user(data):
     response = make_response(jsonify({
         "message": "Login successful",
         "role": user.role.value,
+        "company_id": user.company_id,  # Include company_id in the response
     }), 200)
 
     # Set the tokens in HTTP-only cookies
@@ -173,18 +177,42 @@ def me_service():
         print("Type of User ID:", type(user_id))  # Debugging
         print("JWT Data:", jwt_data)
 
+        # Fetch the user from the database
         user = User.query.get(int(user_id))  # Convert back to integer for database query
         if not user:
             return {"error": "User not found"}, 404
 
-        return {
+        # Fetch company details if company_id exists
+        company_name = None
+        if user.company_id:
+            company = Company.query.get(user.company_id)
+            if company:
+                company_name = company.name
+
+        # Prepare the response
+        response_data = {
             "id": user.id,
             "fullname": user.fullname,
             "username": user.username,
             "email": user.email,
             "role": user.role.value,
             "picture": user.picture,
-        }, 200
+            "company_id": user.company_id,  # Return company_id (can be null)
+            "company_name": company_name,  # Return company_name (can be null)
+        }
+
+        # If the user is a driver, include driver-specific details
+        if user.role == UserRole.DRIVER and user.driver:
+            response_data["driver_details"] = {
+                "name": user.driver.name,
+                "dob": user.driver.dob,
+                "gender": user.driver.gender,
+                "license_number": user.driver.license_number,
+                "accident_record": user.driver.accident_record,
+                "years_of_experience": user.driver.years_of_experience,
+            }
+
+        return response_data, 200
     except Exception as e:
         print("Error in me_service:", e)  # Debugging
         return {"error": "Invalid token"}, 401

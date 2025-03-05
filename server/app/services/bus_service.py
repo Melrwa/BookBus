@@ -12,34 +12,13 @@ def get_bus_by_id_service(bus_id):
         return None
     return bus_schema.dump(bus)
 
-def get_all_buses_service(admin_company_id):
-    """
-    Get all buses that match the admin's company_id.
-    
-    Args:
-        admin_company_id (int): The company_id of the admin making the request.
-    
-    Returns:
-        list: A list of serialized buses that belong to the admin's company.
-    
-    Raises:
-        ValueError: If the admin_company_id is invalid or no buses are found.
-    """
-    # Step 1: Validate the admin's company_id
-    if not admin_company_id:
-        raise ValueError("Admin company_id is required to fetch buses.")
-
-    # Step 2: Fetch buses that match the admin's company_id
-    buses = Bus.query.filter_by(company_id=admin_company_id).all()
-
-    # Step 3: Check if any buses were found
-    if not buses:
-        raise ValueError(f"No buses found for company_id: {admin_company_id}")
-
-    # Step 4: Serialize and return the buses
+def get_all_buses_service(company_id=None):
+    """Get all buses, optionally filtered by company_id."""
+    query = Bus.query
+    if company_id:
+        query = query.filter_by(company_id=company_id)
+    buses = query.all()
     return buses_schema.dump(buses)
-
-    
 
 def add_bus_service(data, image_file=None):
     """Add a new bus with optional image upload."""
