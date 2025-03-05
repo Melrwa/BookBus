@@ -127,6 +127,8 @@ export default function Signup() {
       // Store role and username in localStorage
       localStorage.setItem('role', finalData.role);
       localStorage.setItem('username', finalData.username); // Store the username
+      localStorage.setItem("company_id", finalData.user.company_id);
+
 
       // Clear form and show success message
       setSuccessMessage('Signup successful! Redirecting...');

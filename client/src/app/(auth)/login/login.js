@@ -50,6 +50,9 @@ export default function Login() {
       localStorage.setItem('role', data.role);
       localStorage.setItem('username', username); // Store the username
 
+      localStorage.setItem("company_id", data.user.company_id);
+      
+
       // Store company name in localStorage for admin and driver roles
       if (data.role === 'admin' || data.role === 'driver') {
         localStorage.setItem('companyName', data.companyName); // Assuming the API returns the company name

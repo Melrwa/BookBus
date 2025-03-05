@@ -14,16 +14,25 @@ const ManageBuses = () => {
   const [errors, setErrors] = useState({});
   const router = useRouter();
 
-
   useEffect(() => {
     fetchBuses();
   }, []);
 
   const fetchBuses = async () => {
     try {
-      const response = await fetch("/api/buses");
+      // Fetch the admin's company_id (e.g., from localStorage or context)
+      const company_id = localStorage.getItem("company_id");
+      if (!adminCompanyId) {
+        throw new Error("Admin company ID not found. Please log in again.");
+      }
+
+      // Fetch buses filtered by company_id
+      const response = await fetch(`/api/buses?company_id=${company_id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch buses.");
+      }
+
       const data = await response.json();
-      console.log("Fetched buses:", data); // Log the response
       if (Array.isArray(data)) {
         setBuses(data);
       } else {
@@ -32,11 +41,11 @@ const ManageBuses = () => {
       }
     } catch (error) {
       console.error("Failed to fetch buses:", error);
+      setErrors({ fetchError: error.message }); // Display error to the user
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleEdit = (index) => {
     setEditIndex(index);
@@ -53,7 +62,6 @@ const ManageBuses = () => {
     if (!editData.bus_number) newErrors.bus_number = "Bus number is required.";
     if (!editData.capacity) newErrors.capacity = "Capacity is required.";
     if (!editData.route) newErrors.route = "Route is required.";
-    if (!editData.company_id) newErrors.company_id = "Company ID is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
@@ -64,12 +72,18 @@ const ManageBuses = () => {
     }
 
     try {
+      const adminCompanyId = localStorage.getItem("adminCompanyId");
+      if (!adminCompanyId) {
+        throw new Error("Admin company ID not found.");
+      }
+
+      // Include company_id in the update request
       const response = await fetch(`/api/buses/${editData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editData),
+        body: JSON.stringify({ ...editData, company_id: adminCompanyId }),
       });
 
       if (response.ok) {
@@ -112,7 +126,31 @@ const ManageBuses = () => {
   };
 
   if (loading) {
-    return <div className="bg-black min-h-screen flex items-center justify-center text-yellow-500">Loading...</div>;
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-yellow-500">
+        Loading...
+      </div>
+    );
+  }
+
+  if (errors.fetchError) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-red-500">
+        Error: {errors.fetchError}
+      </div>
+    );
+  }
+
+  if (!loading && buses.length === 0) {
+    return (
+      <div className="bg-black min-h-screen flex flex-col items-center justify-center text-yellow-500">
+        <h1 className="text-3xl font-bold mb-6">Admin Manage Buses</h1>
+        <p>No buses found for your company.</p>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white mt-4" onClick={handleAddBus}>
+          Add Bus
+        </Button>
+      </div>
+    );
   }
 
   return (
