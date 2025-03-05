@@ -20,9 +20,24 @@ def get_all_buses_service(company_id=None):
     buses = query.all()
     return buses_schema.dump(buses)
 
-def add_bus_service(data):
-    """Add a new bus."""
+def add_bus_service(data, image_file=None):
+    """Add a new bus with optional image upload."""
     try:
+        # Handle image upload
+        image_url = None
+        if image_file:
+            # Save the file to a folder (e.g., "uploads/buses")
+            upload_folder = "uploads/buses"
+            os.makedirs(upload_folder, exist_ok=True)
+            filename = secure_filename(image_file.filename)
+            file_path = os.path.join(upload_folder, filename)
+            image_file.save(file_path)
+            image_url = f"/{file_path}"  # Store the file path or URL
+
+        # Add image_url to the data
+        if image_url:
+            data["image_url"] = image_url
+
         # Deserialize the input data into a Bus instance
         bus = bus_schema.load(data, session=db.session)
     except ValidationError as err:
@@ -39,13 +54,23 @@ def add_bus_service(data):
     # Serialize the bus into a dictionary
     return bus_schema.dump(bus)
 
-def update_bus_service(bus_id, data):
-    """Update an existing bus."""
+def update_bus_service(bus_id, data, image_file=None):
+    """Update an existing bus with optional image upload."""
     bus = Bus.query.get(bus_id)
     if not bus:
         return None
 
     try:
+        # Handle image upload
+        if image_file:
+            # Save the file to a folder (e.g., "uploads/buses")
+            upload_folder = "uploads/buses"
+            os.makedirs(upload_folder, exist_ok=True)
+            filename = secure_filename(image_file.filename)
+            file_path = os.path.join(upload_folder, filename)
+            image_file.save(file_path)
+            data["image_url"] = f"/{file_path}"  # Store the file path or URL
+
         # Deserialize the input data into a Bus instance
         updated_bus = bus_schema.load(data, partial=True, instance=bus, session=db.session)
     except ValidationError as err:

@@ -1,7 +1,7 @@
-from flask import Blueprint, request
-from flask_restful import Api, Resource
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
+from flask_restful import Api, Resource
 from server.app.models import UserRole, User
 from server.app.services.bus_service import (
     get_bus_by_id_service,
@@ -9,7 +9,6 @@ from server.app.services.bus_service import (
     add_bus_service,
     update_bus_service,
     delete_bus_service,
-    upload_bus_image,
 )
 
 # Define the Blueprint
@@ -201,23 +200,46 @@ class BusListResource(Resource):
         buses = get_all_buses_service(current_user.company_id)
         return buses, 200
 
+ 
+class BusListResource(Resource):
     @swag_from({
         'tags': ['buses'],
         'description': 'Add a new bus',
         'parameters': [
             {
-                'name': 'body',
-                'in': 'body',
+                'name': 'bus_number',
+                'in': 'formData',
+                'type': 'string',
                 'required': True,
-                'schema': {
-                    'type': 'object',
-                    'properties': {
-                        'bus_number': {'type': 'string'},
-                        'capacity': {'type': 'integer'},
-                        'route': {'type': 'string'},
-                        'company_id': {'type': 'integer'}
-                    }
-                }
+                'description': 'Bus number'
+            },
+            {
+                'name': 'capacity',
+                'in': 'formData',
+                'type': 'integer',
+                'required': True,
+                'description': 'Bus capacity'
+            },
+            {
+                'name': 'route',
+                'in': 'formData',
+                'type': 'string',
+                'required': True,
+                'description': 'Bus route'
+            },
+            {
+                'name': 'company_id',
+                'in': 'formData',
+                'type': 'integer',
+                'required': True,
+                'description': 'Company ID'
+            },
+            {
+                'name': 'image',
+                'in': 'formData',
+                'type': 'file',
+                'required': False,
+                'description': 'Bus image'
             }
         ],
         'responses': {
@@ -231,27 +253,53 @@ class BusListResource(Resource):
                         'capacity': {'type': 'integer'},
                         'seats_available': {'type': 'integer'},
                         'route': {'type': 'string'},
-                        'company_id': {'type': 'integer'}
+                        'company_id': {'type': 'integer'},
+                        'image_url': {'type': 'string'}
                     }
                 }
+            },
+            '400': {
+                'description': 'Validation error'
+            },
+            '403': {
+                'description': 'Unauthorized. Only admins can add buses.'
             }
         }
     })
     @jwt_required()
     def post(self):
         """Add a new bus."""
+        # Get the identity from the JWT token
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
         if not current_user or current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can add buses."}, 403
 
-        data = request.get_json()
         try:
-            bus = add_bus_service(data)
+            # Get form data
+            bus_number = request.form.get("bus_number")
+            capacity = request.form.get("capacity")
+            route = request.form.get("route")
+            company_id = request.form.get("company_id")
+
+            # Handle file upload
+            image_file = request.files.get("image")
+
+            # Create the bus object
+            bus_data = {
+                "bus_number": bus_number,
+                "capacity": int(capacity),
+                "route": route,
+                "company_id": int(company_id),
+            }
+
+            # Call the service function to add the bus
+            bus = add_bus_service(bus_data, image_file)
+            return bus, 201
         except ValueError as err:
             return {"error": str(err)}, 400
-
-        return bus, 201
+        except Exception as e:
+            return {"error": str(e)}, 400
 
 # Register Resources
 # api.add_resource(BusResource, "/<int:bus_id>")
