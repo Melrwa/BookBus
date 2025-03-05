@@ -33,6 +33,9 @@ class Config:
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
+
+    
+
     # Pagination Settings
     PAGINATION_PER_PAGE = int(os.getenv("PAGINATION_PER_PAGE", 10))  # Default items per page
     PAGINATION_MAX_PER_PAGE = int(os.getenv("PAGINATION_MAX_PER_PAGE", 100))  # Max items per page
@@ -50,7 +53,6 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("RENDER_DATABASE_URL")
 
 # Dictionary to select the configuration based on ENV
-
 config = {
     "development": DevelopmentConfig,
     "production": ProductionConfig,
