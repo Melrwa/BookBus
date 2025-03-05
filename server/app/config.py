@@ -8,16 +8,13 @@ load_dotenv()
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False # Avoids SQLAlchemy warning
+    SQLALCHEMY_TRACK_MODIFICATIONS = False  # Avoids SQLAlchemy warning
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5001,http://localhost:3000").split(",")  # List of allowed origins
     CORS_METHODS = os.getenv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS").split(",")  # Allowed HTTP methods
     CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(",")  # Allowed headers
-
-
 
     # JWT Settings
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -32,23 +29,25 @@ class Config:
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
     JWT_COOKIE_SAMESITE = 'Lax'  # Prevents cookies from being sent in cross-site requests
-    
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-
-     # Pagination Settings
+    # Pagination Settings
     PAGINATION_PER_PAGE = int(os.getenv("PAGINATION_PER_PAGE", 10))  # Default items per page
     PAGINATION_MAX_PER_PAGE = int(os.getenv("PAGINATION_MAX_PER_PAGE", 100))  # Max items per page
 
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
+    # Use local database for development
+    SQLALCHEMY_DATABASE_URI = os.getenv("LOCAL_DATABASE_URL", "postgresql://melkizedek:MELRWA2009@localhost:5432/bus_booking_db")
 
 class ProductionConfig(Config):
     """Production configuration."""
     DEBUG = False
+    # Use Render database for production
+    SQLALCHEMY_DATABASE_URI = os.getenv("RENDER_DATABASE_URL")
 
 # Dictionary to select the configuration based on ENV
 config = {
