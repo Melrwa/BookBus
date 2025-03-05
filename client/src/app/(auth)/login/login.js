@@ -15,18 +15,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Validate inputs
-    if (!username || !password) {
-      setErrorMessage('Please fill in all fields.');
-      return;
-    }
-  
-    setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-  
     try {
-      // Login request
       const response = await fetch('api/auth/login', {
         method: 'POST',
         headers: {
@@ -40,28 +29,14 @@ export default function Login() {
   
       if (!response.ok) {
         setErrorMessage(data.error || 'Login failed. Please check your credentials.');
-        setLoading(false);
         return;
       }
   
-      console.log('Login successful:', data);
-  
-      // Store role and username in localStorage
+      // Store user details in localStorage
       localStorage.setItem('role', data.role);
-      localStorage.setItem('username', username); // Store the username
-  
-      // Store company_id and company_name in localStorage if available
-      if (data.user?.company_id) {
-        localStorage.setItem('company_id', data.user.company_id);
-      }
-      if (data.user?.company_name) {
-        localStorage.setItem('company_name', data.user.company_name);
-      }
-  
-      // Clear form and show success message
-      setUsername('');
-      setPassword('');
-      setSuccessMessage('Login successful! Redirecting...');
+      localStorage.setItem('username', data.user.username);
+      localStorage.setItem('company_id', data.user.company_id);  // Store company_id
+      localStorage.setItem('company_name', data.user.company_name || 'N/A');  // Store company_name
   
       // Redirect based on role
       switch (data.role) {
@@ -78,10 +53,8 @@ export default function Login() {
           router.push('/');
       }
     } catch (error) {
-      console.error('Login error:', error.message);
+      console.error('Login error:', error);
       setErrorMessage('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
   

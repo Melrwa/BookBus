@@ -78,87 +78,30 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Validate password and confirm password
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
-    setPasswordError('');
-  
-    // Upload image to Cloudinary
-    let imageUrl = await uploadImageToCloudinary();
-  
-    // Prepare final data for submission
-    const finalData = {
-      ...formData,
-      picture: imageUrl || null,
-    };
-  
-    // If the user is a driver, ensure the 'name' field is included
-    if (finalData.role === 'driver') {
-      finalData.driverDetails = {
-        ...finalData.driverDetails,
-        name: finalData.fullname, // Use the user's fullname as the driver's name
-      };
-    }
-  
-    console.log('Submitting:', finalData);
-  
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(finalData),
+        body: JSON.stringify(formData),
       });
+  
       const result = await response.json();
   
       if (!response.ok) {
-        // Handle backend validation errors
         setErrorMessage(result.error || 'Signup failed. Please try again.');
-        setSuccessMessage('');
         return;
       }
   
-      console.log('Signup successful:', result);
-  
-      // Store role and username in localStorage
-      localStorage.setItem('role', finalData.role);
-      localStorage.setItem('username', finalData.username); // Store the username
-  
-      // Store company_id and company_name in localStorage if available
-      if (result.user?.company_id) {
-        localStorage.setItem('company_id', result.user.company_id);
-      }
-      if (result.user?.company_name) {
-        localStorage.setItem('company_name', result.user.company_name);
-      }
-  
-      // Clear form and show success message
-      setSuccessMessage('Signup successful! Redirecting...');
-      setErrorMessage('');
-      setFormData({
-        fullname: '',
-        username: '',
-        email: '',
-        phone_number: '',
-        password: '',
-        confirmPassword: '',
-        role: 'user',
-        picture: null,
-        driverDetails: {
-          dob: '',
-          gender: '',
-          licenseNumber: '',
-          accidentRecord: '',
-          experience: '',
-        },
-      });
-      setImagePreview(null);
+      // Store user details in localStorage
+      localStorage.setItem('role', result.role);
+      localStorage.setItem('username', result.user.username);
+      localStorage.setItem('company_id', result.user.company_id);  // Store company_id
+      localStorage.setItem('company_name', result.user.company_name || 'N/A');  // Store company_name
   
       // Redirect based on role
-      switch (finalData.role) {
+      switch (result.role) {
         case 'admin':
           router.push('/adminhomepage');
           break;
@@ -169,12 +112,11 @@ export default function Signup() {
           router.push('/userhomepage');
           break;
         default:
-          router.push('/'); // Fallback for unknown roles
+          router.push('/');
       }
     } catch (error) {
-      console.error('Signup failed:', error.message);
+      console.error('Signup failed:', error);
       setErrorMessage('Signup failed. Please try again.');
-      setSuccessMessage('');
     }
   };
   
