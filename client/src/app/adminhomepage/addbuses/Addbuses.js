@@ -35,14 +35,9 @@ const AddBusForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return; // Stop submission if validation fails
-    }
-
+  
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("bus_number", formData.bus_number);
@@ -52,13 +47,13 @@ const AddBusForm = () => {
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
-
+  
       const response = await fetch("/api/buses", {
         method: "POST",
         body: formDataToSend, // Use FormData for file uploads
         // Do not set Content-Type header manually; the browser will handle it
       });
-
+  
       if (response.ok) {
         const newBus = await response.json();
         console.log("Bus added successfully:", newBus);
