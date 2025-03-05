@@ -14,20 +14,24 @@ const ManageBuses = () => {
   const [errors, setErrors] = useState({});
   const router = useRouter();
 
+  // Fetch admin details from localStorage
+  const adminUsername = localStorage.getItem("username");
+  const adminCompanyId = localStorage.getItem("company_id");
+  const adminCompanyName = localStorage.getItem("company_name");
+
   useEffect(() => {
     fetchBuses();
   }, []);
 
   const fetchBuses = async () => {
     try {
-      // Fetch the admin's company_id (e.g., from localStorage or context)
-      const company_id = localStorage.getItem("company_id");
+      // Check if adminCompanyId exists
       if (!adminCompanyId) {
         throw new Error("Admin company ID not found. Please log in again.");
       }
 
       // Fetch buses filtered by company_id
-      const response = await fetch(`/api/buses?company_id=${company_id}`);
+      const response = await fetch(`/api/buses?company_id=${adminCompanyId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch buses.");
       }
@@ -72,11 +76,6 @@ const ManageBuses = () => {
     }
 
     try {
-      const adminCompanyId = localStorage.getItem("adminCompanyId");
-      if (!adminCompanyId) {
-        throw new Error("Admin company ID not found.");
-      }
-
       // Include company_id in the update request
       const response = await fetch(`/api/buses/${editData.id}`, {
         method: "PUT",
@@ -155,10 +154,19 @@ const ManageBuses = () => {
 
   return (
     <div className="bg-black min-h-screen flex flex-col items-center py-10">
-      <h1 className="text-yellow-500 text-3xl font-bold mb-6">Admin Manage Buses</h1>
+      {/* Display Admin Details */}
+      <div className="text-yellow-500 text-center mb-6">
+        <h1 className="text-3xl font-bold">Admin Manage Buses</h1>
+        <p className="text-lg">
+          Welcome, {adminUsername} | Company: {adminCompanyName || "N/A"}
+        </p>
+      </div>
+
       <Button className="bg-blue-600 hover:bg-blue-700 text-white mb-6" onClick={handleAddBus}>
         Add Bus
       </Button>
+
+      {/* Display Buses */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {buses.map((bus, index) => (
           <Card key={index} className="bg-gray-900 text-white w-80">
