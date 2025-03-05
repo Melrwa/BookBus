@@ -1,29 +1,31 @@
 from server.app.models import Bus
 from server.app import db
-from server.app.schemas.bus_schema import bus_schema, buses_schema  # Import the BusSchema
+from server.app.schemas.bus_schema import bus_schema, buses_schema
 from marshmallow import ValidationError
+from werkzeug.utils import secure_filename
+import os
 
 def get_bus_by_id_service(bus_id):
     """Get a bus by its ID and serialize using BusSchema."""
     bus = Bus.query.get(bus_id)
     if not bus:
         return None
-    return bus_schema.dump(bus)  # Serialize the bus
+    return bus_schema.dump(bus)
 
-def get_all_buses_service():
-    """Get all buses and serialize using BusSchema."""
-    buses = Bus.query.all()
-    return buses_schema.dump(buses)  # Serialize multiple buses
+def get_all_buses_service(company_id=None):
+    """Get all buses, optionally filtered by company_id."""
+    query = Bus.query
+    if company_id:
+        query = query.filter_by(company_id=company_id)
+    buses = query.all()
+    return buses_schema.dump(buses)
 
 def add_bus_service(data):
     """Add a new bus."""
-    print(f"Adding bus with data: {data}")  # Debug print
-    
     try:
         # Deserialize the input data into a Bus instance
         bus = bus_schema.load(data, session=db.session)
     except ValidationError as err:
-        print(f"Validation error: {err.messages}")  # Debug print
         raise ValueError(err.messages)
 
     # Set seats_available to capacity if not provided
@@ -35,17 +37,10 @@ def add_bus_service(data):
     db.session.commit()
 
     # Serialize the bus into a dictionary
-    serialized_bus = bus_schema.dump(bus)
-    print(f"Serialized bus: {serialized_bus}")  # Debug print
-
-    return serialized_bus
-
-
+    return bus_schema.dump(bus)
 
 def update_bus_service(bus_id, data):
     """Update an existing bus."""
-    print(f"Updating bus {bus_id} with data: {data}")  # Debug print
-    
     bus = Bus.query.get(bus_id)
     if not bus:
         return None
@@ -54,7 +49,6 @@ def update_bus_service(bus_id, data):
         # Deserialize the input data into a Bus instance
         updated_bus = bus_schema.load(data, partial=True, instance=bus, session=db.session)
     except ValidationError as err:
-        print(f"Validation error: {err.messages}")  # Debug print
         raise ValueError(err.messages)
 
     # If capacity is updated and seats_available is not provided, set seats_available to the new capacity
@@ -65,11 +59,7 @@ def update_bus_service(bus_id, data):
     db.session.commit()
 
     # Serialize the updated bus into a dictionary
-    serialized_bus = bus_schema.dump(updated_bus)
-    print(f"Serialized bus: {serialized_bus}")  # Debug print
-
-    return serialized_bus
-
+    return bus_schema.dump(updated_bus)
 
 def delete_bus_service(bus_id):
     """Delete a bus."""
@@ -80,3 +70,19 @@ def delete_bus_service(bus_id):
     db.session.delete(bus)
     db.session.commit()
     return True
+
+def upload_bus_image(file):
+    """Upload a bus image and return the file path."""
+    if not file:
+        return None
+
+    # Ensure the uploads directory exists
+    upload_folder = "uploads/buses"
+    os.makedirs(upload_folder, exist_ok=True)
+
+    # Save the file
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(upload_folder, filename)
+    file.save(file_path)
+
+    return file_path

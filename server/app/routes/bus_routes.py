@@ -8,7 +8,8 @@ from server.app.services.bus_service import (
     get_all_buses_service,
     add_bus_service,
     update_bus_service,
-    delete_bus_service
+    delete_bus_service,
+    upload_bus_image,
 )
 
 # Define the Blueprint
@@ -56,7 +57,7 @@ class BusResource(Resource):
         bus = get_bus_by_id_service(bus_id)
         if not bus:
             return {"error": "Bus not found"}, 404
-        return bus, 200  # Already serialized by the service
+        return bus, 200
 
     @swag_from({
         'tags': ['buses'],
@@ -105,24 +106,12 @@ class BusResource(Resource):
             }
         }
     })
-
-
     @jwt_required()
     def put(self, bus_id):
         # Get the identity from the JWT token
         user_id = get_jwt_identity()
-        
-        # Fetch the user from the database
         current_user = User.query.get(user_id)
-        
-        if not current_user:
-            return {"error": "User not found"}, 404
-        
-        # Debug print to check the role
-        print(f"Current user role: {current_user.role}")
-        
-        # Check if the user is an admin
-        if current_user.role != UserRole.ADMIN:
+        if not current_user or current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can update buses."}, 403
 
         # Proceed with updating the bus
@@ -165,21 +154,10 @@ class BusResource(Resource):
     })
     @jwt_required()
     def delete(self, bus_id):
-        """Delete a bus by ID."""
         # Get the identity from the JWT token
         user_id = get_jwt_identity()
-        
-        # Fetch the user from the database
         current_user = User.query.get(user_id)
-        
-        if not current_user:
-            return {"error": "User not found"}, 404
-        
-        # Debug print to check the role
-        print(f"Current user role: {current_user.role}")
-        
-        # Check if the user is an admin
-        if current_user.role != UserRole.ADMIN:
+        if not current_user or current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can delete buses."}, 403
 
         # Proceed with deleting the bus
@@ -214,9 +192,14 @@ class BusListResource(Resource):
     })
     @jwt_required()
     def get(self):
-        """Get all buses."""
-        buses = get_all_buses_service()
-        return buses, 200  # Already serialized by the service
+        """Get all buses, filtered by the logged-in admin's company_id."""
+        user_id = get_jwt_identity()
+        current_user = User.query.get(user_id)
+        if not current_user:
+            return {"error": "User not found"}, 404
+
+        buses = get_all_buses_service(current_user.company_id)
+        return buses, 200
 
     @swag_from({
         'tags': ['buses'],
@@ -254,26 +237,14 @@ class BusListResource(Resource):
             }
         }
     })
-
     @jwt_required()
     def post(self):
-        # Get the identity from the JWT token
+        """Add a new bus."""
         user_id = get_jwt_identity()
-        
-        # Fetch the user from the database
         current_user = User.query.get(user_id)
-        
-        if not current_user:
-            return {"error": "User not found"}, 404
-        
-        # Debug print to check the role
-        print(f"Current user role: {current_user.role}")
-        
-        # Check if the user is an admin
-        if current_user.role != UserRole.ADMIN:
+        if not current_user or current_user.role != UserRole.ADMIN:
             return {"error": "Unauthorized. Only admins can add buses."}, 403
 
-        # Proceed with adding the bus
         data = request.get_json()
         try:
             bus = add_bus_service(data)
@@ -282,8 +253,6 @@ class BusListResource(Resource):
 
         return bus, 201
 
-
-
-# # Register Resources
+# Register Resources
 # api.add_resource(BusResource, "/<int:bus_id>")
 # api.add_resource(BusListResource, "/")
