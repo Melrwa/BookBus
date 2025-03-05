@@ -1,4 +1,4 @@
-from server.app.models import Bus
+from server.app.models import Bus, Company
 from server.app import db
 from server.app.schemas.bus_schema import bus_schema, buses_schema
 from marshmallow import ValidationError
@@ -27,6 +27,13 @@ def add_bus_service(data, image_file=None):
         existing_bus = Bus.query.filter_by(bus_number=data["bus_number"]).first()
         if existing_bus:
             raise ValueError(f"A bus with the number {data['bus_number']} already exists.")
+
+        # Validate company_id
+        if "company_id" not in data:
+            raise ValueError("company_id is required.")
+        company = Company.query.get(data["company_id"])
+        if not company:
+            raise ValueError(f"Company with ID {data['company_id']} does not exist.")
 
         # Handle image upload
         image_url = None
@@ -66,6 +73,12 @@ def update_bus_service(bus_id, data, image_file=None):
         return None
 
     try:
+        # Validate company_id if provided
+        if "company_id" in data:
+            company = Company.query.get(data["company_id"])
+            if not company:
+                raise ValueError(f"Company with ID {data['company_id']} does not exist.")
+
         # Handle image upload
         if image_file:
             # Save the file to a folder (e.g., "uploads/buses")
