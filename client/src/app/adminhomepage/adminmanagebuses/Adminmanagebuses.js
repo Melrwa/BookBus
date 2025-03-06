@@ -29,15 +29,15 @@ const ManageBuses = () => {
       if (!response.ok) {
         throw new Error(`Failed to fetch buses. Status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log("Response data:", data); // Log the response data
-  
+
       // Validate the response structure
       if (!Array.isArray(data.buses) || typeof data.total_pages !== "number") {
         throw new Error("Invalid response format.");
       }
-  
+
       setBuses(data.buses);
       setTotalPages(data.total_pages);
       setFetchFailed(false); // Reset fetchFailed on success
@@ -48,9 +48,20 @@ const ManageBuses = () => {
     } finally {
       setLoading(false);
     }
-
   };
-  
+
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setEditData({ ...buses[index] }); // Set the editData state to the selected bus
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!editData.bus_number) newErrors.bus_number = "Bus number is required.";
@@ -84,9 +95,11 @@ const ManageBuses = () => {
       } else {
         const errorData = await response.json();
         console.error("Failed to update bus:", errorData.error);
+        setErrors({ updateError: errorData.error });
       }
     } catch (error) {
       console.error("Error updating bus:", error);
+      setErrors({ updateError: error.message });
     }
   };
 
@@ -103,9 +116,11 @@ const ManageBuses = () => {
       } else {
         const errorData = await response.json();
         console.error("Failed to delete bus:", errorData.error);
+        setErrors({ deleteError: errorData.error });
       }
     } catch (error) {
       console.error("Error deleting bus:", error);
+      setErrors({ deleteError: error.message });
     }
   };
 
