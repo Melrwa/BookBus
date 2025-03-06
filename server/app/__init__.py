@@ -9,7 +9,7 @@ from server.app.routes.user_routes import user_bp, UserResource, UserListResourc
 from server.app.routes.bus_routes import bus_bp, BusResource, BusListResource  # Import bus routes
 from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, ScheduleListResource, SearchSchedulesResource, SchedulesByDateResource  # Import schedule routes
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
-from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource  # Import driver routes
+from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource, DriverDetailsResource # Import driver routes
 from server.app.routes.company_routes import company_bp, CompanyResource, CompanyListResource  # Import company routes
 from server.app.routes.booking_routes import booking_bp, BookingResource, BookingListResource  # Import booking routes
 from server.app.routes.booking_review_routes import booking_review_bp, BookingReviewResource, BookingReviewListResource  # Import booking review routes
@@ -100,6 +100,7 @@ def create_app(config_name="default"):
     # Register Driver Resources
     api.add_resource(DriverResource, "/drivers/<int:driver_id>")
     api.add_resource(DriverListResource, "/drivers")
+    api.add_resource(DriverDetailsResource, "/driver-details")
 
     # Register Company Resources
     api.add_resource(CompanyResource, "/companies/<int:company_id>")

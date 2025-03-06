@@ -274,6 +274,6 @@ class BusListResource(Resource):
         return buses, 200
     
 # Register the BusListResource class
-api.add_resource(BusResource,  "/")
+api.add_resource(BusResource,  "/buses")
    
  

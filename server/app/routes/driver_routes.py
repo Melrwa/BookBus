@@ -9,7 +9,8 @@ from server.app.services.driver_service import (
     get_driver_by_id_service,
     get_all_drivers_service,
     update_driver_service,
-    delete_driver_service
+    delete_driver_service,
+    get_driver_details_service
 )
 
 # Define the Blueprint
@@ -317,4 +318,58 @@ class DriverListResource(Resource):
             return {"error": str(err)}, 400
         return driver, 201
 
-# Register Resources
+
+
+class DriverDetailsResource(Resource):
+    @swag_from({
+        'tags': ['drivers'],
+        'description': 'Get driver details for the authenticated user',
+        'responses': {
+            '200': {
+                'description': 'Driver details retrieved successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'integer'},
+                        'name': {'type': 'string'},
+                        'dob': {'type': 'string', 'format': 'date'},
+                        'gender': {'type': 'string'},
+                        'license_number': {'type': 'string'},
+                        'accident_record': {'type': 'integer'},
+                        'years_of_experience': {'type': 'integer'},
+                        'user_id': {'type': 'integer'},
+                        'bus_id': {'type': 'integer'},
+                        'bus': {
+                            'type': 'object',
+                            'properties': {
+                                'id': {'type': 'integer'},
+                                'name': {'type': 'string'},
+                                'capacity': {'type': 'integer'},
+                                'booked': {'type': 'integer'},
+                                'available': {'type': 'integer'},
+                                'image': {'type': 'string'}
+                            }
+                        }
+                    }
+                }
+            },
+            '404': {
+                'description': 'Driver not found'
+            },
+            '403': {
+                'description': 'Unauthorized. Only drivers can access this endpoint.'
+            }
+        }
+    })
+    @jwt_required()
+    def get(self):
+        """Get driver details for the authenticated user."""
+        user_id = get_jwt_identity()  # Get the current user's ID from the JWT token
+
+        try:
+            driver_data = get_driver_details_service(user_id)
+            return driver_data, 200
+        except ValueError as err:
+            return {"error": str(err)}, 404 if "not found" in str(err).lower() else 403
+
+

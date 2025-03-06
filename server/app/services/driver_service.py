@@ -1,5 +1,5 @@
 # server/app/services/driver_service.py
-from server.app.models import Driver
+from server.app.models import Driver, User, UserRole
 from server.app import db
 from server.app.schemas.driver_schema import driver_schema, drivers_schema
 from marshmallow import ValidationError
@@ -75,3 +75,36 @@ def delete_driver_service(driver_id):
     db.session.delete(driver)
     db.session.commit()
     return True
+
+
+
+
+def get_driver_details_service(user_id):
+    """Fetch driver details for the authenticated user."""
+    current_user = User.query.get(user_id)
+
+    if not current_user:
+        raise ValueError("User not found")
+
+    # Check if the user is a driver
+    if current_user.role != UserRole.DRIVER:
+        raise ValueError("Unauthorized. Only drivers can access this endpoint.")
+
+    # Fetch the driver associated with the user
+    driver = Driver.query.filter_by(user_id=user_id).first()
+    if not driver:
+        raise ValueError("Driver not found")
+
+    # Serialize the driver and include bus details
+    driver_data = driver_schema.dump(driver)
+    if driver.bus:
+        driver_data["bus"] = {
+            "id": driver.bus.id,
+            "name": driver.bus.name,
+            "capacity": driver.bus.capacity,
+            "booked": driver.bus.booked_seats,
+            "available": driver.bus.available_seats,
+            "image": driver.bus.image_url,
+        }
+
+    return driver_data
