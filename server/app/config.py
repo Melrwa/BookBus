@@ -28,7 +28,9 @@ class Config:
     JWT_COOKIE_CSRF_PROTECT = False  # Set to True if using CSRF protection
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
-    JWT_COOKIE_SAMESITE = 'Lax'  # Prevents cookies from being sent in cross-site requests
+    JWT_COOKIE_SAMESITE = 'None'  # Prevents cookies from being sent in cross-site requests
+
+
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"

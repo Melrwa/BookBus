@@ -6,6 +6,8 @@ from sqlalchemy_serializer import SerializerMixin
 class BookingReview(db.Model, SerializerMixin):
     __tablename__ = "booking_reviews"
 
+    
+
     id = db.Column(db.Integer, primary_key=True)
     booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=False)
     review = db.Column(db.Text, nullable=False)  # User's review
@@ -17,3 +19,5 @@ class BookingReview(db.Model, SerializerMixin):
 
     # Serialization rules
     serialize_rules = ("-booking.review",)
+
+
