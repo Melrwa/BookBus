@@ -259,7 +259,9 @@ class BusResource(Resource):
             return {"error": "Bus not found"}, 404
         return {"message": "Bus deleted successfully"}, 200
 
-        
+
+
+class BusListResource(Resource):       
     @swag_from({
     'tags': ['buses'],
     'description': 'Get all buses',
