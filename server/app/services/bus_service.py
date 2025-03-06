@@ -27,40 +27,29 @@ def get_all_buses_service(page=1, per_page=10):
         "total_buses": buses.total
     }
 
-def add_bus_service(data, image_file=None):
-    """Add a new bus with optional image upload."""
+def add_bus_service(data):
+    """Add a new bus with an optional image URL."""
     try:
         # Check if a bus with the same bus_number already exists
         existing_bus = Bus.query.filter_by(bus_number=data["bus_number"]).first()
         if existing_bus:
             raise ValueError(f"A bus with the number {data['bus_number']} already exists.")
 
-        # Validate company_id
-        if "company_id" not in data:
-            raise ValueError("company_id is required.")
-        company = Company.query.get(data["company_id"])
-        if not company:
-            raise ValueError(f"Company with ID {data['company_id']} does not exist.")
-
-        # Handle image upload
-        image_url = None
-        if image_file:
-            # Save the file to a folder (e.g., "uploads/buses")
-            upload_folder = "uploads/buses"
-            os.makedirs(upload_folder, exist_ok=True)
-            filename = secure_filename(image_file.filename)
-            file_path = os.path.join(upload_folder, filename)
-            image_file.save(file_path)
-            image_url = f"/{file_path}"  # Store the file path or URL
-
-        # Add image_url to the data
-        if image_url:
-            data["image_url"] = image_url
-
         # Deserialize the input data into a Bus instance
         bus = bus_schema.load(data, session=db.session)
     except ValidationError as err:
         raise ValueError(err.messages)
+
+    # Set seats_available to capacity if not provided
+    if "seats_available" not in data:
+        bus.seats_available = bus.capacity
+
+    # Add the bus to the database
+    db.session.add(bus)
+    db.session.commit()
+
+    # Serialize the bus into a dictionary
+    return bus_schema.dump(bus)
 
     # Set seats_available to capacity if not provided
     if "seats_available" not in data:
