@@ -39,21 +39,35 @@ def add_bus_service(data, current_user):
         if existing_bus:
             raise ValueError(f"A bus with the number {data['bus_number']} already exists.")
 
-        # Deserialize the input data into a Bus instance
-        bus = bus_schema.load(data, session=db.session)
+        # Validate required fields
+        required_fields = ["bus_number", "capacity", "route"]
+        if not all(field in data for field in required_fields):
+            raise ValueError("Missing required fields: bus_number, capacity, route")
+
+        # Add the company_id from the current user
+        data["company_id"] = current_user.company_id
+
+        # Create the bus object
+        bus = Bus(
+            bus_number=data["bus_number"],
+            capacity=data["capacity"],
+            route=data["route"],
+            image_url=data.get("image_url"),  # Optional field
+            seats_available=data.get("seats_available", data["capacity"]),  # Default to capacity
+            company_id=data["company_id"]  # Include company_id
+        )
+
+        # Add the bus to the database
+        db.session.add(bus)
+        db.session.commit()
+
+        # Serialize the bus into a dictionary
+        return bus_schema.dump(bus)
     except ValidationError as err:
         raise ValueError(err.messages)
-
-    # Set seats_available to capacity if not provided
-    if "seats_available" not in data:
-        bus.seats_available = bus.capacity
-
-    # Add the bus to the database
-    db.session.add(bus)
-    db.session.commit()
-
-    # Serialize the bus into a dictionary
-    return bus_schema.dump(bus)
+    except Exception as e:
+        db.session.rollback()
+        raise ValueError(str(e))
 
 def update_bus_service(bus_id, data, current_user, image_file=None):
     """Update an existing bus with optional image upload."""
