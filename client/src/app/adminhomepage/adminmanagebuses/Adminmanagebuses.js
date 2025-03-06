@@ -12,6 +12,7 @@ const ManageBuses = () => {
   const [editData, setEditData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
+  const [fetchFailed, setFetchFailed] = useState(false); // New state to track fetch failure
   const router = useRouter();
 
   // Fetch admin details from localStorage
@@ -22,29 +23,32 @@ const ManageBuses = () => {
   useEffect(() => {
     fetchBuses();
   }, []);
-
+  
   const fetchBuses = async () => {
     try {
       // Check if adminCompanyId exists
       if (!adminCompanyId) {
         throw new Error("Admin company ID not found. Please log in again.");
       }
-
+  
       // Fetch buses filtered by company_id
       const response = await fetch(`/api/buses?company_id=${adminCompanyId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch buses.");
       }
-
+  
       const data = await response.json();
+  
+      // Check if the response is an array
       if (Array.isArray(data)) {
-        setBuses(data);
+        setBuses(data); // Set buses to the returned array
       } else {
         console.error("Expected an array of buses, but got:", data);
-        setBuses([]); // Set buses to an empty array to avoid errors
+        setBuses([]); // Set buses to an empty array if the response is not an array
       }
     } catch (error) {
       console.error("Failed to fetch buses:", error);
+      setFetchFailed(true); // Set fetchFailed to true only if there's an actual error
       setErrors({ fetchError: error.message }); // Display error to the user
     } finally {
       setLoading(false);
@@ -131,23 +135,11 @@ const ManageBuses = () => {
       </div>
     );
   }
-
-  if (errors.fetchError) {
+  
+  if (fetchFailed) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-red-500">
         Error: {errors.fetchError}
-      </div>
-    );
-  }
-
-  if (!loading && buses.length === 0) {
-    return (
-      <div className="bg-black min-h-screen flex flex-col items-center justify-center text-yellow-500">
-        <h1 className="text-3xl font-bold mb-6">Admin Manage Buses</h1>
-        <p>No buses found for your company.</p>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white mt-4" onClick={handleAddBus}>
-          Add Bus
-        </Button>
       </div>
     );
   }
@@ -167,28 +159,32 @@ const ManageBuses = () => {
       </Button>
 
       {/* Display Buses */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {buses.map((bus, index) => (
-          <Card key={index} className="bg-gray-900 text-white w-80">
-            <img src={bus.image_url || "/default-bus.jpg"} alt="Bus" className="w-full h-40 object-cover" />
-            <CardContent>
-              <p><span className="font-bold">Bus Number:</span> <span className="text-yellow-500">{bus.bus_number}</span></p>
-              <p><span className="font-bold">Capacity:</span> <span className="text-yellow-500">{bus.capacity}</span></p>
-              <p><span className="font-bold">Available Seats:</span> <span className="text-yellow-500">{bus.seats_available}</span></p>
-              <p><span className="font-bold">Route:</span> <span className="text-yellow-500">{bus.route}</span></p>
-              <p><span className="font-bold">Company ID:</span> <span className="text-yellow-500">{bus.company_id}</span></p>
-              <div className="flex justify-between mt-4">
-                <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setDeleteIndex(index)}>
-                  Delete
-                </Button>
-                <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleEdit(index)}>
-                  Edit
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {buses.length === 0 ? (
+        <p className="text-yellow-500">No buses found for your company.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {buses.map((bus, index) => (
+            <Card key={index} className="bg-gray-900 text-white w-80">
+              <img src={bus.image_url || "/default-bus.jpg"} alt="Bus" className="w-full h-40 object-cover" />
+              <CardContent>
+                <p><span className="font-bold">Bus Number:</span> <span className="text-yellow-500">{bus.bus_number}</span></p>
+                <p><span className="font-bold">Capacity:</span> <span className="text-yellow-500">{bus.capacity}</span></p>
+                <p><span className="font-bold">Available Seats:</span> <span className="text-yellow-500">{bus.seats_available}</span></p>
+                <p><span className="font-bold">Route:</span> <span className="text-yellow-500">{bus.route}</span></p>
+                <p><span className="font-bold">Company ID:</span> <span className="text-yellow-500">{bus.company_id}</span></p>
+                <div className="flex justify-between mt-4">
+                  <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setDeleteIndex(index)}>
+                    Delete
+                  </Button>
+                  <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleEdit(index)}>
+                    Edit
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteIndex !== null && (

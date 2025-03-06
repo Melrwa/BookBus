@@ -46,6 +46,7 @@ export default function CreateCompany() {
       // Store the role and company name in localStorage
       localStorage.setItem("role", "admin"); // Assuming the role is "admin" after creating a company
       localStorage.setItem("companyName", data.name); // Store the company name
+      localStorage.setItem("company_id", data.id); // Store the company ID
 
       // Display success message with company name
       setSuccessMessage(`Company "${data.name}" created successfully!`);
