@@ -118,27 +118,33 @@ class BusResource(Resource):
             }
         }
     })
-    @jwt_required()
     def post(self):
         """Add a new bus."""
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
+
+        # Check if the user is an admin or driver
+        if current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+            return {"error": "Unauthorized. Only admins and drivers can add buses."}, 403
 
         try:
             data = request.get_json()
             if not data:
                 return {"error": "No data provided"}, 400
 
+            # Validate required fields
             required_fields = ["bus_number", "capacity", "route"]
             if not all(field in data for field in required_fields):
                 return {"error": "Missing required fields"}, 400
 
+            # Add the bus
             bus = add_bus_service(data, current_user)
             return bus, 201
         except ValueError as err:
-            return {"error": str(err)}, 403  # Unauthorized
+            return {"error": str(err)}, 400  # Bad request
         except Exception as e:
-            return {"error": str(e)}, 500
+            return {"error": str(e)}, 500  # Internal server error
+
 
 # Register the BusResource class
 
