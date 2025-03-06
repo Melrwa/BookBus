@@ -114,6 +114,7 @@ class BusResource(Resource):
             }
         }
     })
+
     @jwt_required()
     def post(self):
         """Add a new bus."""
@@ -148,59 +149,61 @@ class BusResource(Resource):
             return {"error": str(e)}, 400
 
     @swag_from({
-        'tags': ['buses'],
-        'description': 'Update a bus by ID',
-        'parameters': [
-            {
-                'name': 'bus_id',
-                'in': 'path',
-                'type': 'integer',
-                'required': True,
-                'description': 'ID of the bus to update'
-            },
-            {
-                'name': 'body',
-                'in': 'body',
-                'required': True,
-                'schema': {
-                    'type': 'object',
-                    'properties': {
-                        'bus_number': {'type': 'string'},
-                        'capacity': {'type': 'integer'},
-                        'seats_available': {'type': 'integer'},
-                        'route': {'type': 'string'},
-                        'company_id': {'type': 'integer'}
-                    }
+    'tags': ['buses'],
+    'description': 'Update a bus by ID',
+    'parameters': [
+        {
+            'name': 'bus_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the bus to update'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'bus_number': {'type': 'string'},
+                    'capacity': {'type': 'integer'},
+                    'seats_available': {'type': 'integer'},
+                    'route': {'type': 'string'},
+                    'company_id': {'type': 'integer'}
                 }
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Bus updated successfully',
-                'schema': {
-                    'type': 'object',
-                    'properties': {
-                        'id': {'type': 'integer'},
-                        'bus_number': {'type': 'string'},
-                        'capacity': {'type': 'integer'},
-                        'seats_available': {'type': 'integer'},
-                        'route': {'type': 'string'},
-                        'company_id': {'type': 'integer'}
-                    }
-                }
-            },
-            '404': {
-                'description': 'Bus not found'
             }
         }
-    })
+    ],
+    'responses': {
+        '200': {
+            'description': 'Bus updated successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'bus_number': {'type': 'string'},
+                    'capacity': {'type': 'integer'},
+                    'seats_available': {'type': 'integer'},
+                    'route': {'type': 'string'},
+                    'company_id': {'type': 'integer'}
+                }
+            }
+        },
+        '404': {
+            'description': 'Bus not found'
+        }
+    }
+})
     @jwt_required()
     def put(self, bus_id):
         # Get the identity from the JWT token
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
-        if not current_user or current_user.role != UserRole.ADMIN:
-            return {"error": "Unauthorized. Only admins can update buses."}, 403
+
+        # Allow only admins and drivers to update buses
+        if not current_user or current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+            return {"error": "Unauthorized. Only admins and drivers can update buses."}, 403
 
         # Proceed with updating the bus
         data = request.get_json()
@@ -214,100 +217,105 @@ class BusResource(Resource):
         return bus, 200
 
     @swag_from({
-        'tags': ['buses'],
-        'description': 'Delete a bus by ID',
-        'parameters': [
-            {
-                'name': 'bus_id',
-                'in': 'path',
-                'type': 'integer',
-                'required': True,
-                'description': 'ID of the bus to delete'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Bus deleted successfully',
-                'schema': {
-                    'type': 'object',
-                    'properties': {
-                        'message': {'type': 'string'}
-                    }
-                }
-            },
-            '404': {
-                'description': 'Bus not found'
-            }
+    'tags': ['buses'],
+    'description': 'Delete a bus by ID',
+    'parameters': [
+        {
+            'name': 'bus_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the bus to delete'
         }
-    })
+    ],
+    'responses': {
+        '200': {
+            'description': 'Bus deleted successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'}
+                }
+            }
+        },
+        '404': {
+            'description': 'Bus not found'
+        }
+    }
+})
     @jwt_required()
     def delete(self, bus_id):
         # Get the identity from the JWT token
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
-        if not current_user or current_user.role != UserRole.ADMIN:
-            return {"error": "Unauthorized. Only admins can delete buses."}, 403
+
+        # Allow only admins and drivers to delete buses
+        if not current_user or current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+            return {"error": "Unauthorized. Only admins and drivers can delete buses."}, 403
 
         # Proceed with deleting the bus
         success = delete_bus_service(bus_id)
         if not success:
             return {"error": "Bus not found"}, 404
         return {"message": "Bus deleted successfully"}, 200
-class BusListResource(Resource):
+
+        
     @swag_from({
-        'tags': ['buses'],
-        'description': 'Get all buses',
-        'parameters': [
-            {
-                'name': 'page',
-                'in': 'query',
-                'type': 'integer',
-                'required': False,
-                'description': 'Page number'
-            },
-            {
-                'name': 'per_page',
-                'in': 'query',
-                'type': 'integer',
-                'required': False,
-                'description': 'Number of buses per page'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'List of all buses',
-                'schema': {
-                    'type': 'object',
-                    'properties': {
-                        'buses': {
-                            'type': 'array',
-                            'items': {
-                                'type': 'object',
-                                'properties': {
-                                    'id': {'type': 'integer'},
-                                    'bus_number': {'type': 'string'},
-                                    'capacity': {'type': 'integer'},
-                                    'seats_available': {'type': 'integer'},
-                                    'route': {'type': 'string'},
-                                    'company_id': {'type': 'integer'}
-                                }
+    'tags': ['buses'],
+    'description': 'Get all buses',
+    'parameters': [
+        {
+            'name': 'page',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'description': 'Page number'
+        },
+        {
+            'name': 'per_page',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'description': 'Number of buses per page'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': 'List of all buses',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'buses': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'id': {'type': 'integer'},
+                                'bus_number': {'type': 'string'},
+                                'capacity': {'type': 'integer'},
+                                'seats_available': {'type': 'integer'},
+                                'route': {'type': 'string'},
+                                'company_id': {'type': 'integer'}
                             }
-                        },
-                        'total_pages': {'type': 'integer'},
-                        'current_page': {'type': 'integer'},
-                        'total_buses': {'type': 'integer'}
-                    }
+                        }
+                    },
+                    'total_pages': {'type': 'integer'},
+                    'current_page': {'type': 'integer'},
+                    'total_buses': {'type': 'integer'}
                 }
             }
         }
-    })
+    }
+})
     @jwt_required()
     def get(self):
-        """Get all buses (admin only)."""
+        """Get all buses (admin and drivers only)."""
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
-        if not current_user or current_user.role != UserRole.ADMIN:
-            return {"error": "Unauthorized. Only admins can access this resource."}, 403
+
+        # Allow only admins and drivers to access this resource
+        if not current_user or current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+            return {"error": "Unauthorized. Only admins and drivers can access this resource."}, 403
 
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)

@@ -52,15 +52,7 @@ def add_bus_service(data):
     return bus_schema.dump(bus)
 
     # Set seats_available to capacity if not provided
-    if "seats_available" not in data:
-        bus.seats_available = bus.capacity
-
-    # Add the bus to the database
-    db.session.add(bus)
-    db.session.commit()
-
-    # Serialize the bus into a dictionary
-    return bus_schema.dump(bus)
+ 
 
 def update_bus_service(bus_id, data, image_file=None):
     """Update an existing bus with optional image upload."""
