@@ -27,12 +27,20 @@ const ManageBuses = () => {
     try {
       const response = await fetch(`/api/buses?page=${currentPage}&per_page=${itemsPerPage}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch buses.");
+        throw new Error(`Failed to fetch buses. Status: ${response.status}`);
       }
-
+  
       const data = await response.json();
+      console.log("Response data:", data); // Log the response data
+  
+      // Validate the response structure
+      if (!Array.isArray(data.buses) || typeof data.total_pages !== "number") {
+        throw new Error("Invalid response format.");
+      }
+  
       setBuses(data.buses);
       setTotalPages(data.total_pages);
+      setFetchFailed(false); // Reset fetchFailed on success
     } catch (error) {
       console.error("Failed to fetch buses:", error);
       setFetchFailed(true);
@@ -40,18 +48,9 @@ const ManageBuses = () => {
     } finally {
       setLoading(false);
     }
-  };
 
-  const handleEdit = (index) => {
-    setEditIndex(index);
-    setEditData({ ...buses[index] });
   };
-
-  const handleEditChange = (field, value) => {
-    setEditData({ ...editData, [field]: value });
-    setErrors({ ...errors, [field]: "" });
-  };
-
+  
   const validateForm = () => {
     const newErrors = {};
     if (!editData.bus_number) newErrors.bus_number = "Bus number is required.";

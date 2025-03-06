@@ -9,13 +9,13 @@ const AddBusForm = () => {
     bus_number: "",
     capacity: "",
     route: "",
-    company_id: "", // Will be dynamically set
-    image: null, // For image upload
+    image_url: "", // Changed from image file to URL
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [imagePreview, setImagePreview] = useState(""); // For image preview
 
   // Fetch company_id from localStorage on component mount
   useEffect(() => {
@@ -29,12 +29,10 @@ const AddBusForm = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: "" }); // Clear validation errors when the user types
-  };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
+    // Update image preview when the image URL changes
+    if (name === "image_url") {
+      setImagePreview(value);
     }
   };
 
@@ -43,7 +41,6 @@ const AddBusForm = () => {
     if (!formData.bus_number) newErrors.bus_number = "Bus number is required.";
     if (!formData.capacity) newErrors.capacity = "Capacity is required.";
     if (!formData.route) newErrors.route = "Route is required.";
-    if (!formData.company_id) newErrors.company_id = "Company ID is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
@@ -60,18 +57,15 @@ const AddBusForm = () => {
     setSuccessMessage("");
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("bus_number", formData.bus_number);
-      formDataToSend.append("capacity", formData.capacity);
-      formDataToSend.append("route", formData.route);
-      formDataToSend.append("company_id", formData.company_id);
-      if (formData.image) {
-        formDataToSend.append("image", formData.image);
-      }
-
       const response = await fetch("/api/buses", {
         method: "POST",
-        body: formDataToSend, // Use FormData for file uploads
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          company_id: localStorage.getItem("company_id"), // Include company_id from localStorage
+        }),
       });
 
       if (response.ok) {
@@ -84,9 +78,9 @@ const AddBusForm = () => {
           bus_number: "",
           capacity: "",
           route: "",
-          company_id: formData.company_id, // Keep the company_id
-          image: null,
+          image_url: "",
         });
+        setImagePreview(""); // Clear image preview
 
         // Redirect to the manage buses page after 2 seconds
         setTimeout(() => {
@@ -156,26 +150,24 @@ const AddBusForm = () => {
             {errors.route && <p className="text-red-500 text-sm mt-1">{errors.route}</p>}
           </div>
           <div>
-            <label className="text-[#F4A900] block mb-1">Company ID</label>
+            <label className="text-[#F4A900] block mb-1">Bus Image URL</label>
             <input
-              type="text"
-              name="company_id"
-              value={formData.company_id}
+              type="url"
+              name="image_url"
+              value={formData.image_url}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white"
-              readOnly // Make the field read-only
+              placeholder="Enter image URL"
             />
-            {errors.company_id && <p className="text-red-500 text-sm mt-1">{errors.company_id}</p>}
-          </div>
-          <div>
-            <label className="text-[#F4A900] block mb-1">Bus Image</label>
-            <input
-              type="file"
-              name="image"
-              onChange={handleImageUpload}
-              className="w-full p-2 rounded bg-gray-700 text-white"
-              accept="image/*"
-            />
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Bus Preview"
+                  className="w-full h-32 object-cover rounded"
+                />
+              </div>
+            )}
           </div>
           <button
             type="submit"
