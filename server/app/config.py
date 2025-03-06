@@ -12,7 +12,7 @@ class Config:
 
     # CORS Settings
     CORS_HEADERS = "Content-Type"
-    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5001,http://localhost:3000").split(",")  # List of allowed origins
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://book-bus-58nb.vercel.app/,http://localhost:5001,http://localhost:3000").split(",")  # List of allowed origins
     CORS_METHODS = os.getenv("CORS_METHODS", "GET,POST,PUT,DELETE,OPTIONS").split(",")  # Allowed HTTP methods
     CORS_ALLOW_HEADERS = os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(",")  # Allowed headers
 
