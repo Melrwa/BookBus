@@ -118,6 +118,7 @@ class BusResource(Resource):
             }
         }
     })
+    @jwt_required()
     def post(self):
         """Add a new bus."""
         user_id = get_jwt_identity()
