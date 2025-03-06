@@ -12,44 +12,31 @@ const ManageBuses = () => {
   const [editData, setEditData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
-  const [fetchFailed, setFetchFailed] = useState(false); // New state to track fetch failure
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
 
-  // Fetch admin details from localStorage
-  const adminUsername = localStorage.getItem("username");
-  const adminCompanyId = localStorage.getItem("company_id");
-  const adminCompanyName = localStorage.getItem("company_name");
+  const itemsPerPage = 8; // Number of buses per page
 
   useEffect(() => {
     fetchBuses();
-  }, []);
-  
+  }, [currentPage]);
+
   const fetchBuses = async () => {
     try {
-      // Check if adminCompanyId exists
-      if (!adminCompanyId) {
-        throw new Error("Admin company ID not found. Please log in again.");
-      }
-  
-      // Fetch buses filtered by company_id
-      const response = await fetch(`/api/buses?company_id=${adminCompanyId}`);
+      const response = await fetch(`/api/buses?page=${currentPage}&per_page=${itemsPerPage}`);
       if (!response.ok) {
         throw new Error("Failed to fetch buses.");
       }
-  
+
       const data = await response.json();
-  
-      // Check if the response is an array
-      if (Array.isArray(data)) {
-        setBuses(data); // Set buses to the returned array
-      } else {
-        console.error("Expected an array of buses, but got:", data);
-        setBuses([]); // Set buses to an empty array if the response is not an array
-      }
+      setBuses(data.buses);
+      setTotalPages(data.total_pages);
     } catch (error) {
       console.error("Failed to fetch buses:", error);
-      setFetchFailed(true); // Set fetchFailed to true only if there's an actual error
-      setErrors({ fetchError: error.message }); // Display error to the user
+      setFetchFailed(true);
+      setErrors({ fetchError: error.message });
     } finally {
       setLoading(false);
     }
@@ -62,7 +49,7 @@ const ManageBuses = () => {
 
   const handleEditChange = (field, value) => {
     setEditData({ ...editData, [field]: value });
-    setErrors({ ...errors, [field]: "" }); // Clear validation errors when the user types
+    setErrors({ ...errors, [field]: "" });
   };
 
   const validateForm = () => {
@@ -71,22 +58,21 @@ const ManageBuses = () => {
     if (!editData.capacity) newErrors.capacity = "Capacity is required.";
     if (!editData.route) newErrors.route = "Route is required.";
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleEditSave = async () => {
     if (!validateForm()) {
-      return; // Stop submission if validation fails
+      return;
     }
 
     try {
-      // Include company_id in the update request
       const response = await fetch(`/api/buses/${editData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...editData, company_id: adminCompanyId }),
+        body: JSON.stringify(editData),
       });
 
       if (response.ok) {
@@ -128,6 +114,10 @@ const ManageBuses = () => {
     router.push("/adminhomepage/addbuses");
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
   if (loading) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-yellow-500">
@@ -135,7 +125,7 @@ const ManageBuses = () => {
       </div>
     );
   }
-  
+
   if (fetchFailed) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-red-500">
@@ -146,23 +136,18 @@ const ManageBuses = () => {
 
   return (
     <div className="bg-black min-h-screen flex flex-col items-center py-10">
-      {/* Display Admin Details */}
       <div className="text-yellow-500 text-center mb-6">
         <h1 className="text-3xl font-bold">Admin Manage Buses</h1>
-        <p className="text-lg">
-          Welcome, {adminUsername} | Company: {adminCompanyName || "N/A"}
-        </p>
       </div>
 
       <Button className="bg-blue-600 hover:bg-blue-700 text-white mb-6" onClick={handleAddBus}>
         Add Bus
       </Button>
 
-      {/* Display Buses */}
       {buses.length === 0 ? (
-        <p className="text-yellow-500">No buses found for your company.</p>
+        <p className="text-yellow-500">No buses found.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {buses.map((bus, index) => (
             <Card key={index} className="bg-gray-900 text-white w-80">
               <img src={bus.image_url || "/default-bus.jpg"} alt="Bus" className="w-full h-40 object-cover" />
@@ -171,7 +156,6 @@ const ManageBuses = () => {
                 <p><span className="font-bold">Capacity:</span> <span className="text-yellow-500">{bus.capacity}</span></p>
                 <p><span className="font-bold">Available Seats:</span> <span className="text-yellow-500">{bus.seats_available}</span></p>
                 <p><span className="font-bold">Route:</span> <span className="text-yellow-500">{bus.route}</span></p>
-                <p><span className="font-bold">Company ID:</span> <span className="text-yellow-500">{bus.company_id}</span></p>
                 <div className="flex justify-between mt-4">
                   <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setDeleteIndex(index)}>
                     Delete
@@ -185,6 +169,27 @@ const ManageBuses = () => {
           ))}
         </div>
       )}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6">
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white mx-2"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <span className="text-yellow-500 mx-2">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white mx-2"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </div>
 
       {/* Delete Confirmation Modal */}
       {deleteIndex !== null && (
