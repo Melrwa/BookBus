@@ -29,6 +29,8 @@ class Config:
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
     JWT_COOKIE_SAMESITE = 'None'  # Prevents cookies from being sent in cross-site requests
+    JWT_COOKIE_DOMAIN= "bookbus-mooh.onrender.com"  # Set cookie domain
+
 
 
 
