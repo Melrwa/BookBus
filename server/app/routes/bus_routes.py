@@ -164,7 +164,6 @@ class BusResource(Resource):
         if not success:
             return {"error": "Bus not found"}, 404
         return {"message": "Bus deleted successfully"}, 200
-
 class BusListResource(Resource):
     @swag_from({
         'tags': ['buses'],
@@ -215,18 +214,19 @@ class BusListResource(Resource):
     })
     @jwt_required()
     def get(self):
-        """Get all buses, filtered by the logged-in admin's company_id."""
+        """Get all buses (admin only)."""
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
-        if not current_user:
-            return {"error": "User not found"}, 404
+        if not current_user or current_user.role != UserRole.ADMIN:
+            return {"error": "Unauthorized. Only admins can access this resource."}, 403
 
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
 
-        buses = get_all_buses_service(current_user.company_id, page, per_page)
+        buses = get_all_buses_service(page, per_page)
         return buses, 200
     
+        
     @swag_from({
         'tags': ['buses'],
         'description': 'Add a new bus',
