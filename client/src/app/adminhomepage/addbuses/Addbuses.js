@@ -49,7 +49,7 @@ const AddBusForm = () => {
     setSuccessMessage("");
 
     try {
-      const response = await fetch("/api/buses/buses", {
+      const response = await fetch("/api/buses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
