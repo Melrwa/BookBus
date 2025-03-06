@@ -52,6 +52,7 @@ class BusResource(Resource):
             }
         }
     })
+
     @jwt_required()
     def get(self, bus_id):
         """Get a bus by ID."""
@@ -59,6 +60,7 @@ class BusResource(Resource):
         if not bus:
             return {"error": "Bus not found"}, 404
         return bus, 200
+
 
     @swag_from({
         'tags': ['buses'],
@@ -116,13 +118,11 @@ class BusResource(Resource):
             }
         }
     })
-    @jwt_required()
+@jwt_required()
     def post(self):
         """Add a new bus."""
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
-        if not current_user or current_user.role != UserRole.ADMIN:
-            return {"error": "Unauthorized. Only admins can add buses."}, 403
 
         try:
             data = request.get_json()
@@ -133,37 +133,37 @@ class BusResource(Resource):
             if not all(field in data for field in required_fields):
                 return {"error": "Missing required fields"}, 400
 
-            data["company_id"] = current_user.company_id
-            bus = add_bus_service(data)
+            bus = add_bus_service(data, current_user)
             return bus, 201
         except ValueError as err:
-            return {"error": str(err)}, 400
+            return {"error": str(err)}, 403  # Unauthorized
         except Exception as e:
             return {"error": str(e)}, 500
 
 # Register the BusResource class
 
 
+
     @jwt_required()
     def put(self, bus_id):
-        # Get the identity from the JWT token
+        """Update a bus by ID."""
         user_id = get_jwt_identity()
         current_user = User.query.get(user_id)
 
-        # Allow only admins and drivers to update buses
-        if not current_user or current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
-            return {"error": "Unauthorized. Only admins and drivers can update buses."}, 403
-
-        # Proceed with updating the bus
-        data = request.get_json()
         try:
-            bus = update_bus_service(bus_id, data)
-        except ValueError as err:
-            return {"error": str(err)}, 400
+            data = request.get_json()
+            if not data:
+                return {"error": "No data provided"}, 400
 
-        if not bus:
-            return {"error": "Bus not found"}, 404
-        return bus, 200
+            bus = update_bus_service(bus_id, data, current_user)
+            if not bus:
+                return {"error": "Bus not found"}, 404
+            return bus, 200
+        except ValueError as err:
+            return {"error": str(err)}, 403  # Unauthorized
+        except Exception as e:
+            return {"error": str(e)}, 500
+        
 
     @swag_from({
     'tags': ['buses'],

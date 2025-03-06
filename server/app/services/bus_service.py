@@ -1,4 +1,4 @@
-from server.app.models import Bus, Company
+from server.app.models import Bus, Company, UserRole
 from server.app import db
 from server.app.schemas.bus_schema import bus_schema, buses_schema
 from marshmallow import ValidationError
@@ -27,8 +27,12 @@ def get_all_buses_service(page=1, per_page=10):
         "total_buses": buses.total
     }
 
-def add_bus_service(data):
+def add_bus_service(data, current_user):
     """Add a new bus with an optional image URL."""
+    # Check if the current user is authorized (admin or driver)
+    if current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+        raise ValueError("Unauthorized. Only admins and drivers can add buses.")
+
     try:
         # Check if a bus with the same bus_number already exists
         existing_bus = Bus.query.filter_by(bus_number=data["bus_number"]).first()
@@ -51,22 +55,17 @@ def add_bus_service(data):
     # Serialize the bus into a dictionary
     return bus_schema.dump(bus)
 
-    # Set seats_available to capacity if not provided
- 
-
-def update_bus_service(bus_id, data, image_file=None):
+def update_bus_service(bus_id, data, current_user, image_file=None):
     """Update an existing bus with optional image upload."""
+    # Check if the current user is authorized (admin or driver)
+    if current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+        raise ValueError("Unauthorized. Only admins and drivers can update buses.")
+
     bus = Bus.query.get(bus_id)
     if not bus:
         return None
 
     try:
-        # Validate company_id if provided
-        if "company_id" in data:
-            company = Company.query.get(data["company_id"])
-            if not company:
-                raise ValueError(f"Company with ID {data['company_id']} does not exist.")
-
         # Handle image upload
         if image_file:
             # Save the file to a folder (e.g., "uploads/buses")
@@ -92,8 +91,12 @@ def update_bus_service(bus_id, data, image_file=None):
     # Serialize the updated bus into a dictionary
     return bus_schema.dump(updated_bus)
 
-def delete_bus_service(bus_id):
+def delete_bus_service(bus_id, current_user):
     """Delete a bus."""
+    # Check if the current user is authorized (admin or driver)
+    if current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
+        raise ValueError("Unauthorized. Only admins and drivers can delete buses.")
+
     bus = Bus.query.get(bus_id)
     if not bus:
         return False
@@ -101,19 +104,3 @@ def delete_bus_service(bus_id):
     db.session.delete(bus)
     db.session.commit()
     return True
-
-def upload_bus_image(file):
-    """Upload a bus image and return the file path."""
-    if not file:
-        return None
-
-    # Ensure the uploads directory exists
-    upload_folder = "uploads/buses"
-    os.makedirs(upload_folder, exist_ok=True)
-
-    # Save the file
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(upload_folder, filename)
-    file.save(file_path)
-
-    return file_path
