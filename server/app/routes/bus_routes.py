@@ -165,26 +165,49 @@ class BusResource(Resource):
             return {"error": "Bus not found"}, 404
         return {"message": "Bus deleted successfully"}, 200
 
-
 class BusListResource(Resource):
     @swag_from({
         'tags': ['buses'],
         'description': 'Get all buses',
+        'parameters': [
+            {
+                'name': 'page',
+                'in': 'query',
+                'type': 'integer',
+                'required': False,
+                'description': 'Page number'
+            },
+            {
+                'name': 'per_page',
+                'in': 'query',
+                'type': 'integer',
+                'required': False,
+                'description': 'Number of buses per page'
+            }
+        ],
         'responses': {
             '200': {
                 'description': 'List of all buses',
                 'schema': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'object',
-                        'properties': {
-                            'id': {'type': 'integer'},
-                            'bus_number': {'type': 'string'},
-                            'capacity': {'type': 'integer'},
-                            'seats_available': {'type': 'integer'},
-                            'route': {'type': 'string'},
-                            'company_id': {'type': 'integer'}
-                        }
+                    'type': 'object',
+                    'properties': {
+                        'buses': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'integer'},
+                                    'bus_number': {'type': 'string'},
+                                    'capacity': {'type': 'integer'},
+                                    'seats_available': {'type': 'integer'},
+                                    'route': {'type': 'string'},
+                                    'company_id': {'type': 'integer'}
+                                }
+                            }
+                        },
+                        'total_pages': {'type': 'integer'},
+                        'current_page': {'type': 'integer'},
+                        'total_buses': {'type': 'integer'}
                     }
                 }
             }
@@ -198,9 +221,12 @@ class BusListResource(Resource):
         if not current_user:
             return {"error": "User not found"}, 404
 
-        buses = get_all_buses_service(current_user.company_id)
-        return buses, 200
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
 
+        buses = get_all_buses_service(current_user.company_id, page, per_page)
+        return buses, 200
+    
     @swag_from({
         'tags': ['buses'],
         'description': 'Add a new bus',

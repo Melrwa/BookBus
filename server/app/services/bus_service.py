@@ -12,13 +12,22 @@ def get_bus_by_id_service(bus_id):
         return None
     return bus_schema.dump(bus)
 
-def get_all_buses_service(company_id=None):
-    """Get all buses, optionally filtered by company_id."""
+def get_all_buses_service(company_id=None, page=1, per_page=10):
+    """Get all buses, optionally filtered by company_id, with pagination."""
     query = Bus.query
     if company_id:
         query = query.filter_by(company_id=company_id)
-    buses = query.all()
-    return buses_schema.dump(buses)
+    
+    # Paginate the query
+    buses = query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    # Return the paginated results
+    return {
+        "buses": buses_schema.dump(buses.items),
+        "total_pages": buses.pages,
+        "current_page": buses.page,
+        "total_buses": buses.total
+    }
 
 def add_bus_service(data, image_file=None):
     """Add a new bus with optional image upload."""
