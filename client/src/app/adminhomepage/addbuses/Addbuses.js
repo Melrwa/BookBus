@@ -17,14 +17,6 @@ const AddBusForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(""); // For image preview
 
-  // Fetch company_id from localStorage on component mount
-  useEffect(() => {
-    const company_id = localStorage.getItem("company_id");
-    if (company_id) {
-      setFormData((prevData) => ({ ...prevData, company_id }));
-    }
-  }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -62,10 +54,8 @@ const AddBusForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          company_id: localStorage.getItem("company_id"), // Include company_id from localStorage
-        }),
+        credentials: "include", // Include cookies in the request
+        body: JSON.stringify(formData), // Send only the required fields
       });
 
       if (response.ok) {
