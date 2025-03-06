@@ -2,29 +2,34 @@
 
 import React, { useEffect, useState } from "react";
 
-const DriverhomePage = () => {
+const DriverHomePage = () => {
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch driver details from the API
-    fetch("/api/driver-details") // Replace with your actual API endpoint
-      .then((response) => {
+    const fetchDriverDetails = async () => {
+      try {
+        const response = await fetch("/api/driver-details", {
+          method: "GET",
+          credentials: "include", // Include cookies for authentication
+        });
+
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return response.json();
-      })
-      .then((data) => {
+
+        const data = await response.json();
         setDriver(data); // Set the fetched driver data
-        setLoading(false); // Set loading to false
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching driver data:", error);
         setError(error.message); // Set error message
+      } finally {
         setLoading(false); // Set loading to false
-      });
+      }
+    };
+
+    fetchDriverDetails();
   }, []);
 
   if (loading) {
@@ -76,4 +81,4 @@ const DriverhomePage = () => {
   );
 };
 
-export default DriverhomePage;
+export default DriverHomePage;

@@ -16,7 +16,7 @@ export default function DriverNav() {
       </div>
       <div className="space-x-6">
           <a href="driverhomepage" className="hover:text-yellow-400 text-white">Home</a>
-          <a href="/Buses" className="hover:text-yellow-400 text-white">Buses</a>
+          <a href="driverhomepage/drivermanagebuses" className="hover:text-yellow-400 text-white">Buses</a>
           <a href="/driverhomepage/driverprofile" className="hover:text-yellow-400 text-white">Profile</a>
         </div>
       <div className="space-x-4 text">
