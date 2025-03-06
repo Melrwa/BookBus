@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaCamera, FaUserPlus, FaSpinner } from 'react-icons/fa'; // Added FaSpinner for loading state
+import { FaCamera, FaUserPlus, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function Signup() {
@@ -75,26 +75,25 @@ export default function Signup() {
       return null;
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validate password and confirm password
     if (formData.password !== formData.confirmPassword) {
       setPasswordError('Passwords do not match');
       return;
     }
     setPasswordError('');
-
+  
     // Upload image to Cloudinary
     let imageUrl = await uploadImageToCloudinary();
-
+  
     // Prepare final data for submission
     const finalData = {
       ...formData,
       picture: imageUrl || null,
     };
-
+  
     // If the user is a driver, ensure the 'name' field is included
     if (finalData.role === 'driver') {
       finalData.driverDetails = {
@@ -102,9 +101,9 @@ export default function Signup() {
         name: finalData.fullname, // Use the user's fullname as the driver's name
       };
     }
-
+  
     console.log('Submitting:', finalData);
-
+  
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -114,19 +113,23 @@ export default function Signup() {
         body: JSON.stringify(finalData),
       });
       const result = await response.json();
-
+  
       if (!response.ok) {
         // Handle backend validation errors
         setErrorMessage(result.error || 'Signup failed. Please try again.');
         setSuccessMessage('');
         return;
       }
-
+  
       console.log('Signup successful:', result);
+  
+          // Store user details in localStorage
+    localStorage.setItem('role', result.role);
+    localStorage.setItem('username', result.user.username);
+    localStorage.setItem('company_id', result.user.company_id);  // Store company_id
+    localStorage.setItem('company_name', result.user.company_name || 'N/A');  // Store company_name
 
-      // Store role in localStorage
-      localStorage.setItem('role', finalData.role);
-
+  
       // Clear form and show success message
       setSuccessMessage('Signup successful! Redirecting...');
       setErrorMessage('');
@@ -148,7 +151,7 @@ export default function Signup() {
         },
       });
       setImagePreview(null);
-
+  
       // Redirect based on role
       switch (finalData.role) {
         case 'admin':
@@ -169,7 +172,7 @@ export default function Signup() {
       setSuccessMessage('');
     }
   };
-
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
       <div className="bg-gray-900 p-8 rounded-xl shadow-lg w-full max-w-lg">

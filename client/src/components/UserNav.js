@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-
+import { logout } from "../app/lib/auth";
 
 export default function UserNav() {
   const handleLogout = async () => {
