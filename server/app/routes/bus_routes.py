@@ -57,6 +57,95 @@ class BusResource(Resource):
         if not bus:
             return {"error": "Bus not found"}, 404
         return bus, 200
+           
+    @swag_from({
+        'tags': ['buses'],
+        'description': 'Add a new bus',
+        'parameters': [
+            {
+                'name': 'bus_number',
+                'in': 'formData',
+                'type': 'string',
+                'required': True,
+                'description': 'Bus number'
+            },
+            {
+                'name': 'capacity',
+                'in': 'formData',
+                'type': 'integer',
+                'required': True,
+                'description': 'Bus capacity'
+            },
+            {
+                'name': 'route',
+                'in': 'formData',
+                'type': 'string',
+                'required': True,
+                'description': 'Bus route'
+            },
+            {
+                'name': 'image_url',
+                'in': 'formData',
+                'type': 'string',
+                'required': False,
+                'description': 'Bus image URL'
+            }
+        ],
+        'responses': {
+            '201': {
+                'description': 'Bus created successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'integer'},
+                        'bus_number': {'type': 'string'},
+                        'capacity': {'type': 'integer'},
+                        'seats_available': {'type': 'integer'},
+                        'route': {'type': 'string'},
+                        'image_url': {'type': 'string'}
+                    }
+                }
+            },
+            '400': {
+                'description': 'Validation error'
+            },
+            '403': {
+                'description': 'Unauthorized. Only admins can add buses.'
+            }
+        }
+    })
+    @jwt_required()
+    def post(self):
+        """Add a new bus."""
+        # Get the identity from the JWT token
+        user_id = get_jwt_identity()
+        current_user = User.query.get(user_id)
+        if not current_user or current_user.role != UserRole.ADMIN:
+            return {"error": "Unauthorized. Only admins can add buses."}, 403
+
+        try:
+            # Get form data
+            bus_number = request.form.get("bus_number")
+            capacity = request.form.get("capacity")
+            route = request.form.get("route")
+            image_url = request.form.get("image_url")
+
+            # Create the bus object
+            bus_data = {
+                "bus_number": bus_number,
+                "capacity": int(capacity),
+                "route": route,
+                "company_id": current_user.company_id,  # Dynamically set from the admin's context
+                "image_url": image_url  # Optional image URL
+            }
+
+            # Call the service function to add the bus
+            bus = add_bus_service(bus_data)
+            return bus, 201
+        except ValueError as err:
+            return {"error": str(err)}, 400
+        except Exception as e:
+            return {"error": str(e)}, 400
 
     @swag_from({
         'tags': ['buses'],
@@ -226,92 +315,4 @@ class BusListResource(Resource):
         buses = get_all_buses_service(page, per_page)
         return buses, 200
     
-        
-@swag_from({
-    'tags': ['buses'],
-    'description': 'Add a new bus',
-    'parameters': [
-        {
-            'name': 'bus_number',
-            'in': 'formData',
-            'type': 'string',
-            'required': True,
-            'description': 'Bus number'
-        },
-        {
-            'name': 'capacity',
-            'in': 'formData',
-            'type': 'integer',
-            'required': True,
-            'description': 'Bus capacity'
-        },
-        {
-            'name': 'route',
-            'in': 'formData',
-            'type': 'string',
-            'required': True,
-            'description': 'Bus route'
-        },
-        {
-            'name': 'image_url',
-            'in': 'formData',
-            'type': 'string',
-            'required': False,
-            'description': 'Bus image URL'
-        }
-    ],
-    'responses': {
-        '201': {
-            'description': 'Bus created successfully',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'id': {'type': 'integer'},
-                    'bus_number': {'type': 'string'},
-                    'capacity': {'type': 'integer'},
-                    'seats_available': {'type': 'integer'},
-                    'route': {'type': 'string'},
-                    'image_url': {'type': 'string'}
-                }
-            }
-        },
-        '400': {
-            'description': 'Validation error'
-        },
-        '403': {
-            'description': 'Unauthorized. Only admins can add buses.'
-        }
-    }
-})
-@jwt_required()
-def post(self):
-    """Add a new bus."""
-    # Get the identity from the JWT token
-    user_id = get_jwt_identity()
-    current_user = User.query.get(user_id)
-    if not current_user or current_user.role != UserRole.ADMIN:
-        return {"error": "Unauthorized. Only admins can add buses."}, 403
-
-    try:
-        # Get form data
-        bus_number = request.form.get("bus_number")
-        capacity = request.form.get("capacity")
-        route = request.form.get("route")
-        image_url = request.form.get("image_url")
-
-        # Create the bus object
-        bus_data = {
-            "bus_number": bus_number,
-            "capacity": int(capacity),
-            "route": route,
-            "company_id": current_user.company_id,  # Dynamically set from the admin's context
-            "image_url": image_url  # Optional image URL
-        }
-
-        # Call the service function to add the bus
-        bus = add_bus_service(bus_data)
-        return bus, 201
-    except ValueError as err:
-        return {"error": str(err)}, 400
-    except Exception as e:
-        return {"error": str(e)}, 400
+ 
