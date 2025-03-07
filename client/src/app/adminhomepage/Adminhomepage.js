@@ -50,7 +50,7 @@ const AdminDashboard = () => {
           title="Manage Bookings"
           color="bg-blue-900"
           icon="📅"
-          onClick={() => navigateTo("/manage-bookings")}
+          onClick={() => navigateTo("/adminhomepage/adminmanagebookings")}
         />
         <Card
           title="Manage Buses"

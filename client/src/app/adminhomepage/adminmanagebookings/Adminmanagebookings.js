@@ -1,3 +1,10 @@
+import React from 'react'
+
+export default function Adminmanagebookings() {
+  return (
+    <div>Adminmanagebookings</div>
+  )
+}
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -60,7 +67,7 @@ export default function Adminmanagebookings() {
             <span className="text-[#F4A900]">{booking.bus_id}</span>
             <span>{booking.seat_numbers}</span>
             <span>{booking.is_vip ? 'VIP' : 'Standard'}</span>
-            <span className="text-[#F4A900]">{booking.origin} {'>'} {booking.destination}</span>
+            <span className="text-[#F4A900]">{booking.origin} ==> {booking.destination}</span>
             <span>{new Date(booking.departure_time).toLocaleString()}</span>
             <span>kshs {booking.amount_paid}</span>
           </div>
