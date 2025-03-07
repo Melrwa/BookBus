@@ -36,18 +36,18 @@ const AddBusForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateForm()) {
       return; // Stop submission if validation fails
     }
-
+  
     setLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
-
+  
     try {
       const response = await fetch("/api/buses/buses", {
         method: "POST",
@@ -57,12 +57,12 @@ const AddBusForm = () => {
         credentials: "include", // Include cookies in the request
         body: JSON.stringify(formData), // Send only the required fields
       });
-
+  
       if (response.ok) {
         const newBus = await response.json();
         console.log("Bus added successfully:", newBus);
         setSuccessMessage("Bus added successfully! Redirecting...");
-
+  
         // Reset form fields
         setFormData({
           bus_number: "",
@@ -71,7 +71,7 @@ const AddBusForm = () => {
           image_url: "",
         });
         setImagePreview(""); // Clear image preview
-
+  
         // Redirect to the manage buses page after 2 seconds
         setTimeout(() => {
           router.push("/admin/manage-buses");
