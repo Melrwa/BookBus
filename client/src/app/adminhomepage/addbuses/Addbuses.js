@@ -49,13 +49,29 @@ const AddBusForm = () => {
     setSuccessMessage("");
   
     try {
+      // Get the company_id from local storage
+      const adminData = JSON.parse(localStorage.getItem("admin"));
+      const company_id = adminData?.company_id;
+  
+      if (!company_id) {
+        setErrorMessage("Company ID is missing. Please log in again.");
+        return;
+      }
+  
+      // Add the company_id to the form data
+      const payload = {
+        ...formData,
+        company_id: company_id,
+      };
+  
+      // Send the request
       const response = await fetch("/api/buses/buses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include", // Include cookies in the request
-        body: JSON.stringify(formData), // Send only the required fields
+        body: JSON.stringify(payload), // Send the payload with company_id
       });
   
       if (response.ok) {
@@ -87,7 +103,7 @@ const AddBusForm = () => {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
