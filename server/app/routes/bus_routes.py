@@ -118,6 +118,7 @@ class BusResource(Resource):
             }
         }
     })
+
     @jwt_required()
     def post(self):
         """Add a new bus."""
@@ -130,6 +131,7 @@ class BusResource(Resource):
 
         try:
             data = request.get_json()
+            print("Received data:", data)  # Log the received data
             if not data:
                 return {"error": "No data provided"}, 400
 
