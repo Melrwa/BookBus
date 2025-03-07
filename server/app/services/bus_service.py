@@ -28,47 +28,46 @@ def get_all_buses_service(page=1, per_page=10):
     }
 
 def add_bus_service(data, current_user):
-    """Add a new bus with an optional image URL."""
-    # Check if the current user is authorized (admin or driver)
-    if current_user.role not in [UserRole.ADMIN, UserRole.DRIVER]:
-        raise ValueError("Unauthorized. Only admins and drivers can add buses.")
-
+    """
+    Add a new bus to the database.
+    """
     try:
-        # Check if a bus with the same bus_number already exists
-        existing_bus = Bus.query.filter_by(bus_number=data["bus_number"]).first()
-        if existing_bus:
-            raise ValueError(f"A bus with the number {data['bus_number']} already exists.")
+        # Extract data
+        bus_number = data.get("bus_number")
+        capacity = data.get("capacity")
+        route = data.get("route")
+        image_url = data.get("image_url")
+        company_id = data.get("company_id")  # Get company_id from the data
 
-        # Validate required fields
-        required_fields = ["bus_number", "capacity", "route"]
-        if not all(field in data for field in required_fields):
-            raise ValueError("Missing required fields: bus_number, capacity, route")
+        # Validate data
+        if not bus_number or not capacity or not route:
+            raise ValueError("Missing required fields")
 
-        # Add the company_id from the current user
-        data["company_id"] = current_user.company_id
-
-        # Create the bus object
-        bus = Bus(
-            bus_number=data["bus_number"],
-            capacity=data["capacity"],
-            route=data["route"],
-            image_url=data.get("image_url"),  # Optional field
-            seats_available=data.get("seats_available", data["capacity"]),  # Default to capacity
-            company_id=data["company_id"]  # Include company_id
+        # Create a new bus
+        new_bus = Bus(
+            bus_number=bus_number,
+            capacity=capacity,
+            route=route,
+            image_url=image_url,
+            company_id=company_id  # Associate the bus with the company
         )
 
-        # Add the bus to the database
-        db.session.add(bus)
+        # Save to the database
+        db.session.add(new_bus)
         db.session.commit()
 
-        # Serialize the bus into a dictionary
-        return bus_schema.dump(bus)
-    except ValidationError as err:
-        raise ValueError(err.messages)
+        return {
+            "id": new_bus.id,
+            "bus_number": new_bus.bus_number,
+            "capacity": new_bus.capacity,
+            "route": new_bus.route,
+            "image_url": new_bus.image_url,
+            "company_id": new_bus.company_id
+        }
     except Exception as e:
         db.session.rollback()
-        raise ValueError(str(e))
-
+        raise e
+    
 def update_bus_service(bus_id, data, current_user, image_file=None):
     """Update an existing bus with optional image upload."""
     # Check if the current user is authorized (admin or driver)
