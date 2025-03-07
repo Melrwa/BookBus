@@ -8,6 +8,7 @@ load_dotenv()
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Avoids SQLAlchemy warning
 
     # CORS Settings
@@ -29,19 +30,22 @@ class Config:
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
     JWT_COOKIE_SAMESITE = 'None'  # Prevents cookies from being sent in cross-site requests
-  
-
-
 
     # Debug Mode
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-
-
-
     # Pagination Settings
     PAGINATION_PER_PAGE = int(os.getenv("PAGINATION_PER_PAGE", 10))  # Default items per page
     PAGINATION_MAX_PER_PAGE = int(os.getenv("PAGINATION_MAX_PER_PAGE", 100))  # Max items per page
+
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
+    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
+    CLOUDINARY_UPLOAD_PRESET = os.getenv("CLOUDINARY_UPLOAD_PRESET")
+
+    # Backend URL
+    NEXT_PUBLIC_BACKEND_URL = os.getenv("NEXT_PUBLIC_BACKEND_URL")
 
 class DevelopmentConfig(Config):
     """Development configuration."""
@@ -54,6 +58,13 @@ class ProductionConfig(Config):
     DEBUG = False
     # Use Render database for production
     SQLALCHEMY_DATABASE_URI = os.getenv("RENDER_DATABASE_URL")
+    
+    # SSL Configuration for Render PostgreSQL
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "connect_args": {
+            "sslmode": "require",  # Require SSL for secure connections
+        }
+    }
 
 # Dictionary to select the configuration based on ENV
 config = {
