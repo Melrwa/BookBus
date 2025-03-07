@@ -26,11 +26,10 @@ The project follows a *modern UI design, featuring a **dark theme with accents o
 - *Route Management*: Drivers can see upcoming trips assigned to them.
 
 ## 🛠️ Tech Stack
-- *Frontend*: Next.js, React, Tailwind CSS
-- *Backend*: Node.js (if applicable, provide more details)
-- *Database*: (Specify if it's MongoDB, PostgreSQL, etc.)
-- *Authentication*: (JWT, NextAuth, Firebase Auth, etc.)
-- *State Management*: (If using Redux, Context API, etc.)
+- *Frontend*: Next.js, Tailwind CSS
+- *Backend*: Python
+- *Database*: PostgreSQL
+- *Authentication*: JWT
 
 ## 🎨 Design & UI
 - *Dark-themed UI with yellow (#F4A900) highlights*.
