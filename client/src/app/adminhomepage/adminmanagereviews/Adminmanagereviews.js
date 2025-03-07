@@ -1,49 +1,65 @@
-"use client";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-import React from "react";
+const AdminReviews = () => {
+  const [reviews, setReviews] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState("");
 
-const reviews = [
-  {
-    user: "Kimutai",
-    rating: 5,
-    comment: "Great experience! The booking process was smooth.",
-    date: "25/02/25",
-  },
-  {
-    user: "Shirleen",
-    rating: 4,
-    comment: "Good service but could be improved.",
-    date: "19/02/25",
-  },
-];
+  useEffect(() => {
+    fetchReviews();
+  }, [page]);
 
-const ReviewsTable = () => {
+  const fetchReviews = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`/booking_reviews/?page=${page}&per_page=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setReviews(response.data.reviews);
+      setTotalPages(response.data.total_pages);
+    } catch (err) {
+      setError("Failed to fetch reviews");
+    }
+  };
+
   return (
-    <div className="p-6 bg-black text-white min-h-screen flex flex-col items-center">
-      <h2 className="text-yellow-500 text-2xl font-bold mb-4">
-        Customer Reviews
-      </h2>
-      <div className="w-full max-w-1xl border border-gray-700">
-        <div className="grid grid-cols-3 bg-gray-800 text-yellow-500 font-bold p-5">
-          <div>User</div>
-          <div>Comment</div>
-          <div>Date</div>
-        </div>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center p-6">
+      <h1 className="text-[#F4A900] text-3xl font-bold mb-8">All Reviews</h1>
+      {error && <p className="text-red-500">{error}</p>}
+      <div className="w-full max-w-4xl">
         {reviews.map((review, index) => (
           <div
             key={index}
-            className={`grid grid-cols-3 p-5 ${
-              index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
-            } border-b border-gray-700`}
+            className="bg-gray-900 p-6 rounded-lg shadow-lg mb-6"
           >
-            <div>{review.user}</div>
-            <div>{review.comment}</div>
-            <div>{review.date}</div>
+            <p>{review.review}</p>
+            <p className="text-sm text-gray-400">
+              {new Date(review.created_at).toLocaleDateString()}
+            </p>
           </div>
+        ))}
+      </div>
+      <div className="flex justify-center mt-6">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => setPage(i + 1)}
+            className={`mx-1 px-3 py-1 rounded ${
+              page === i + 1
+                ? "bg-[#F4A900] text-black"
+                : "bg-gray-700 text-white"
+            }`}
+          >
+            {i + 1}
+          </button>
         ))}
       </div>
     </div>
   );
 };
 
-export default ReviewsTable;
+export default AdminReviews;
