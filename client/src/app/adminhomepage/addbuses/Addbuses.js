@@ -70,7 +70,7 @@ const AddBusForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Include cookies in the request
+        credentials: "include", 
         body: JSON.stringify(payload), // Send the payload with company_id
       });
   
@@ -103,7 +103,7 @@ const AddBusForm = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
