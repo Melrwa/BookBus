@@ -67,7 +67,7 @@ const Bookings = () => {
             <span>{booking.seat_numbers}</span>
             <span>{booking.is_vip ? "VIP" : "Standard"}</span>
             <span className="text-[#F4A900]">
-              {booking.origin} ==> {booking.destination}
+              {booking.origin} {'>'} {booking.destination}
             </span>
             <span>{new Date(booking.departure_time).toLocaleString()}</span>
             <span>kshs {booking.amount_paid}</span>

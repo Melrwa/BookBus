@@ -1,10 +1,11 @@
 import React from 'react'
-import Adminmanagereviews from './Adminmanagereviews'
+
+import AdminReviews from './Adminmanagereviews'
 
 export default function page() {
   return (
     <div>
-      <Adminmanagereviews/>
+      <AdminReviews />
         
       
     </div>
