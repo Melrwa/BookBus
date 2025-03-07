@@ -3,6 +3,8 @@ from server.app.models import Booking, Bus
 from server.app import db
 from server.app.schemas.booking_schema import booking_schema, bookings_schema
 from marshmallow import ValidationError
+from server.app.schemas import booking_review_schema
+
 
 def add_booking_service(data):
     """Add a new booking."""
@@ -36,7 +38,10 @@ def get_booking_by_id_service(booking_id):
     booking = Booking.query.get(booking_id)
     if not booking:
         return None
-    return booking_schema.dump(booking)  # Serialize the booking
+    # Include reviews in the response
+    booking_data = booking_schema.dump(booking)
+    booking_data['reviews'] = booking_review_schema.dump(booking.reviews)
+    return booking_data
 
 def get_all_bookings_service(page=1, per_page=10):
     """Get all bookings with pagination and serialize using BookingSchema."""

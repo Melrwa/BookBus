@@ -5,6 +5,7 @@ from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
 from server.app.models import UserRole, User
+from server.app.schemas import booking_review_schema
 from server.app.services.booking_service import (
     add_booking_service,
     get_booking_by_id_service,
@@ -237,6 +238,60 @@ class BookingListResource(Resource):
         except ValueError as err:
             return {"error": str(err)}, 400
         return booking, 201
+
+
+    
+class BookingReviewsByBookingResource(Resource):
+    @swag_from({
+        'tags': ['booking_reviews'],
+        'description': 'Get all reviews for a specific booking',
+        'parameters': [
+            {
+                'name': 'booking_id',
+                'in': 'path',
+                'type': 'integer',
+                'required': True,
+                'description': 'ID of the booking to retrieve reviews for'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'List of reviews for the booking retrieved successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'reviews': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'id': {'type': 'integer'},
+                                    'booking_id': {'type': 'integer'},
+                                    'review': {'type': 'string'},
+                                    'alert': {'type': 'boolean'},
+                                    'created_at': {'type': 'string', 'format': 'date-time'}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            '404': {
+                'description': 'Booking not found'
+            }
+        }
+    })
+    @jwt_required()
+    def get(self, booking_id):
+        """Get all reviews for a specific booking."""
+        booking = Booking.query.get(booking_id)
+        if not booking:
+            return {"error": "Booking not found"}, 404
+        reviews = booking_review_schema.dump(booking.reviews)
+        return {"reviews": reviews}, 200
+
+# Register the new resource
+# api.add_resource(BookingReviewsByBookingResource, "/booking/<int:booking_id>/reviews")
 
 # Register Resources
 # api.add_resource(BookingResource, "/<int:booking_id>")

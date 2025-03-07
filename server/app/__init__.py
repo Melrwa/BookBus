@@ -11,8 +11,8 @@ from server.app.routes.schedule_routes import schedule_bp, ScheduleResource, Sch
 from server.app.routes.transaction_routes import transaction_bp, TransactionResource, TransactionListResource  # Import transaction routes
 from server.app.routes.driver_routes import driver_bp, DriverResource, DriverListResource, DriverDetailsResource # Import driver routes
 from server.app.routes.company_routes import company_bp, CompanyResource, CompanyListResource  # Import company routes
-from server.app.routes.booking_routes import booking_bp, BookingResource, BookingListResource  # Import booking routes
-from server.app.routes.booking_review_routes import booking_review_bp, BookingReviewResource, BookingReviewListResource  # Import booking review routes
+from server.app.routes.booking_routes import booking_bp, BookingResource, BookingListResource,  BookingReviewsByBookingResource  # Import booking routes
+from server.app.routes.booking_review_routes import booking_review_bp, BookingReviewResource, BookingReviewListResource# Import booking review routes
 from server.app.swagger_config import SWAGGER_CONFIG  # Import Swagger config
 
 
@@ -109,10 +109,12 @@ def create_app(config_name="default"):
     # Register  Booking Resources
     api.add_resource(BookingResource, "/bookings/<int:booking_id>")
     api.add_resource(BookingListResource, "/bookings")
+    api.add_resource(BookingReviewsByBookingResource, "/booking/<int:booking_id>/reviews")
 
     # Register Booking Review Resources
     api.add_resource(BookingReviewResource, "/booking_reviews/<int:review_id>")
     api.add_resource(BookingReviewListResource, "/booking_reviews")
+    
 
 
     # Create database tables within app context
