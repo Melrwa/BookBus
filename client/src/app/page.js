@@ -136,7 +136,7 @@ export default function Home() {
           searchResults.map((schedule) => (
             <div
               key={schedule.id}
-              className="bg-gray-800 p-6 rounded-lg mt-4 flex flex-col gap-2 border border-gray-700"
+              className="bg-gray-900 p-6 rounded-lg mt-4 flex flex-col gap-2 border border-black"
             >
               <div className="flex justify-between items-center">
                 <div>
@@ -172,7 +172,7 @@ export default function Home() {
                   </p>
                 </div>
                 <a
-                  href={`/bookingbus?scheduleId=${schedule.id}`}
+                  href="/bookingbus"
                   className="bg-red-500 px-4 py-2 rounded"
                 >
                   Select
