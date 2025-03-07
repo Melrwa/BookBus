@@ -140,6 +140,9 @@ class BusResource(Resource):
             if not all(field in data for field in required_fields):
                 return {"error": "Missing required fields"}, 400
 
+            # Add the company_id from the authenticated user
+            data["company_id"] = current_user.company_id
+
             # Add the bus
             bus = add_bus_service(data, current_user)
             return bus, 201
