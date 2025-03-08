@@ -14,25 +14,25 @@ export default function Home() {
       console.log("Current date:", currentDate); // Log the date for debugging
       setLoading(true);
       setError("");
-  
+
       try {
         const response = await fetch(
           `/api/schedules/date?date=${currentDate}`
         );
-  
+
         // Check if the response is JSON
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           const text = await response.text();
           throw new Error(`Invalid response: ${text}`);
         }
-  
+
         const data = await response.json();
-  
+
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch schedules.");
         }
-  
+
         console.log("Backend response:", data); // Log the response
         setSearchResults(data);
       } catch (err) {
@@ -42,45 +42,45 @@ export default function Home() {
         setLoading(false);
       }
     };
-  
+
     fetchSchedulesForCurrentDate();
   }, []);
-  
+
   // Handle manual search
   const handleSearch = async (e) => {
     e.preventDefault();
-  
+
     const formData = new FormData(e.target);
     const origin = formData.get("origin");
     const destination = formData.get("destination");
     const date = formData.get("date");
-  
+
     if (!origin || !destination || !date) {
       setError("Please fill in all fields.");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       const response = await fetch(
         `/api/schedules/search?origin=${origin}&destination=${destination}&date=${date}`
       );
-  
+
       // Check if the response is JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         throw new Error(`Invalid response: ${text}`);
       }
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch schedules.");
       }
-  
+
       console.log("Backend response:", data); // Log the response
       setSearchResults(data);
     } catch (err) {
