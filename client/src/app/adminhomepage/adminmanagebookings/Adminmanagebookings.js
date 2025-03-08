@@ -1,84 +1,129 @@
-"use client"
+"use client";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-export default function Adminmanagebookings() {
+const ManageBookings = () => {
+  const router = useRouter();
   const [bookings, setBookings] = useState([]);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch all bookings from the backend
   useEffect(() => {
-    fetchAllBookings();
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch("/api/admin/bookings", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch bookings");
+        }
+
+        const data = await response.json();
+        setBookings(data); // Set the fetched bookings
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        setError("Failed to fetch bookings. Please try again.");
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  const fetchAllBookings = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/bookings/', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setBookings(response.data.bookings);
-    } catch (err) {
-      setError('Failed to fetch bookings');
-    }
-  };
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
+  }
 
-  const handleDelete = async (bookingId) => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/bookings/${bookingId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      fetchAllBookings(); // Refresh the list after deletion
-    } catch (err) {
-      setError('Failed to delete booking');
-    }
-  };
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <p className="text-red-500 text-lg">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center p-6">
-      <h1 className="text-[#F4A900] text-3xl font-bold mb-8">Manage All Bookings</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      {bookings.map((booking, index) => (
-        <div
-          key={index}
-          className="bg-gray-900 w-3/4 md:w-2/3 lg:w-3/5 p-6 rounded-lg shadow-lg mb-6"
-        >
-          <div className="grid grid-cols-6 text-lg font-semibold text-[#F4A900] border-b border-gray-700 pb-3">
-            <span>User ID</span>
-            <span>Bus Booked</span>
-            <span>Seat No.</span>
-            <span>Class</span>
-            <span>From-To</span>
-            <span>Date/Time</span>
-            <span>Price</span>
-          </div>
-          <div className="grid grid-cols-6 text-lg text-white py-3">
-            <span>{booking.user_id}</span>
-            <span className="text-[#F4A900]">{booking.bus_id}</span>
-            <span>{booking.seat_numbers}</span>
-            <span>{booking.is_vip ? 'VIP' : 'Standard'}</span>
-            <span className="text-[#F4A900]">{booking.origin} =={'>'} {booking.destination}</span>
-            <span>{new Date(booking.departure_time).toLocaleString()}</span>
-            <span>kshs {booking.amount_paid}</span>
-          </div>
-          <div className="flex justify-end mt-3 space-x-3">
-            <button className="bg-green-600 text-black font-semibold px-4 py-2 rounded-md">
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(booking.id)}
-              className="bg-red-600 text-white font-semibold px-4 py-2 rounded-md"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
+    <div className="min-h-screen bg-gray-900 text-yellow-500 p-6">
+      <h1 className="text-3xl font-bold mb-6">Manage Bookings</h1>
+
+      {/* Bookings Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+          <thead className="bg-gray-700">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                User
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                Bus
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700">
+            {bookings.map((booking) => (
+              <tr key={booking.id} className="hover:bg-gray-750 transition">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  {booking.id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  {booking.user_name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  {booking.bus_name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  {new Date(booking.booking_date).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      booking.status === "confirmed"
+                        ? "bg-green-500 text-white"
+                        : "bg-red-500 text-white"
+                    }`}
+                  >
+                    {booking.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
+                  <button
+                    className="bg-yellow-500 text-black px-3 py-1 rounded-md hover:bg-yellow-600 transition"
+                    onClick={() => handleViewDetails(booking.id)}
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+};
+
+export default ManageBookings;
