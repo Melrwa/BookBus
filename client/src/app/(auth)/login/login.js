@@ -5,7 +5,7 @@ import { FaUnlockAlt, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -14,71 +14,56 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validate inputs
-    if (!username || !password) {
+    if (!email || !password) {
       setErrorMessage('Please fill in all fields.');
       return;
     }
-  
+
     setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
-  
+
     try {
       // Login request
-      const response = await fetch('api/auth/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include',
+        body: JSON.stringify({ email, password }),
       });
-  
-      const data = await response.json();
-  
+
       if (!response.ok) {
-        setErrorMessage(data.error || 'Login failed. Please check your credentials.');
-        setLoading(false);
-        return;
+        const errorText = await response.text(); // Read the response as text
+        throw new Error(errorText || 'Login failed. Please check your credentials.');
       }
-  
+
+      const data = await response.json(); // Parse the response as JSON
+
       console.log('Login successful:', data);
-  
+
       // Store user details in localStorage
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('username', data.user.username);
-      localStorage.setItem('company_id', data.user.company_id);  // Store company_id
-      localStorage.setItem('company_name', data.user.company_name || 'N/A');  // Store company_name
-  
+      localStorage.setItem('token', data.token); // Store the token
+      localStorage.setItem('role', data.user.role); // Store the user's role
+      localStorage.setItem('email', data.user.email); // Store the user's email
+
       // Clear form and show success message
-      setUsername('');
+      setEmail('');
       setPassword('');
       setSuccessMessage('Login successful! Redirecting...');
-  
-      // Redirect based on role
-      switch (data.role) {
-        case 'admin':
-          router.push('/adminhomepage');
-          break;
-        case 'driver':
-          router.push('/driverhomepage');
-          break;
-        case 'user':
-          router.push('/userhomepage');
-          break;
-        default:
-          router.push('/');
-      }
+
+      // Redirect to the user homepage
+      router.push('/userhomepage');
     } catch (error) {
       console.error('Login error:', error.message);
-      setErrorMessage('Login failed. Please try again.');
+      setErrorMessage(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
       <div className="bg-gray-900 p-10 rounded-xl shadow-lg w-full max-w-lg">
@@ -96,15 +81,15 @@ export default function Login() {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          {/* Username Field */}
+          {/* Email Field */}
           <div className="mb-6">
-            <label className="block text-[#F4A900] mb-2">Enter Username</label>
+            <label className="block text-[#F4A900] mb-2">Enter Email</label>
             <input
-              type="text"
-              placeholder="Enter your username"
+              type="email"
+              placeholder="Enter your email"
               className="w-full p-4 bg-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-[#F4A900]"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
