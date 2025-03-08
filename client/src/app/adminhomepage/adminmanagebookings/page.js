@@ -1,13 +1,10 @@
 import React from 'react'
-
-import AdminReviews from './Adminmanagereviews'
+import Adminmanagebookings from './Adminmanagebookings'
 
 export default function page() {
   return (
     <div>
-      <AdminReviews />
-        
-      
+        <Adminmanagebookings />
     </div>
   )
 }

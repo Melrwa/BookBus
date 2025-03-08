@@ -16,16 +16,17 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Validate inputs
     if (!username || !password) {
       setErrorMessage('Please fill in all fields.');
       return;
     }
-
+  
     setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
-
+  
     try {
       const response = await fetch('api/auth/login', {
         method: 'POST',
@@ -33,19 +34,29 @@ export default function Login() {
         body: JSON.stringify({ username, password }),
         credentials: 'include',
       });
-
+  
       const data = await response.json();
+  
       if (!response.ok) {
         setErrorMessage(data.error || 'Login failed. Please check your credentials.');
         setLoading(false);
         return;
       }
-
+  
+      console.log('Login successful:', data);
+  
+      // Store user details in localStorage
       localStorage.setItem('role', data.role);
+      localStorage.setItem('username', data.user.username);
+      localStorage.setItem('company_id', data.user.company_id);  // Store company_id
+      localStorage.setItem('company_name', data.user.company_name || 'N/A');  // Store company_name
+  
+      // Clear form and show success message
       setUsername('');
       setPassword('');
       setSuccessMessage('Login successful! Redirecting...');
-
+  
+      // Redirect based on role
       switch (data.role) {
         case 'admin': router.push('/adminhomepage'); break;
         case 'driver': router.push('/driverhomepage'); break;
@@ -59,32 +70,7 @@ export default function Login() {
       setLoading(false);
     }
   };
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const response = await fetch('api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setErrorMessage(data.error || 'Password reset failed. Try again.');
-      } else {
-        setSuccessMessage('Password reset link sent to your email!');
-        setEmail('');
-      }
-    } catch (error) {
-      setErrorMessage('Error sending reset link. Try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
       <div className="bg-gray-900 p-10 rounded-xl shadow-lg w-full max-w-lg">

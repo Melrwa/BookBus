@@ -1,10 +1,10 @@
 import React from 'react'
-import Driverhomepage from './Driverhomepage'
+import DriverHomePage from './Driverhomepage'
 
 export default function page() {
   return (
     <div>
-      <Driverhomepage />
+      <DriverHomePage />
     </div>
   )
 }

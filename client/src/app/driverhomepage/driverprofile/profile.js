@@ -1,15 +1,20 @@
 "use client"
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 
 const DriverProfile = () => {
   const { id } = useParams();
   const [driver, setDriver] = useState(null);
 
   useEffect(() => {
-    axios.get(`/api/drivers/${id}`)
-      .then(response => setDriver(response.data))
+    fetch(`/api/drivers/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(data => setDriver(data))
       .catch(error => console.error("Error fetching driver data:", error));
   }, [id]);
 
