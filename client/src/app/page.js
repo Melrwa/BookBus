@@ -20,7 +20,6 @@ export default function Home() {
         );
 
         // Check if the response is JSON
-        const response = await fetch(`/api/schedules/date?date=${currentDate}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           const text = await response.text();
