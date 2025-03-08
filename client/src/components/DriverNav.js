@@ -1,6 +1,14 @@
 import Link from "next/link";
+import { logout } from "../app/lib/auth"; 
 
 export default function DriverNav() {
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      window.location.href = "/"; // Redirect to the homepage after logout
+    }
+
+  };
   return (
     <nav className="bg-black py-4 px-6 flex justify-between items-center">
       <div className="flex items-center gap-2">
@@ -16,12 +24,14 @@ export default function DriverNav() {
       </div>
       <div className="space-x-6">
           <a href="driverhomepage" className="hover:text-yellow-400 text-white">Home</a>
-          <a href="/Buses" className="hover:text-yellow-400 text-white">Buses</a>
+          <a href="driverhomepage/drivermanagebuses" className="hover:text-yellow-400 text-white">Buses</a>
           <a href="/driverhomepage/driverprofile" className="hover:text-yellow-400 text-white">Profile</a>
         </div>
       <div className="space-x-4 text">
       
-        <Link  className="bg-yellow-500 text-black px-4 py-2 rounded" href="/logout">Logout</Link>
+      <button
+        onClick={handleLogout}
+        className="hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded">Logout</button  >
       </div>
     </nav>
   );
