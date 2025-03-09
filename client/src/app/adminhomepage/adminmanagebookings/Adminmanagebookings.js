@@ -25,7 +25,7 @@ const ManageBookings = () => {
         }
 
         const data = await response.json();
-        setBookings(data); // Set the fetched bookings
+        setBookings(data.bookings); // Set the fetched bookings
       } catch (error) {
         console.error("Error fetching bookings:", error);
         setError("Failed to fetch bookings. Please try again.");
@@ -37,7 +37,6 @@ const ManageBookings = () => {
     fetchBookings();
   }, []);
 
-  
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-900">
@@ -90,10 +89,10 @@ const ManageBookings = () => {
                   {booking.id}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
-                  {booking.user_name}
+                  {booking.customer?.name || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
-                  {booking.bus_name}
+                  {booking.bus?.route || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
                   {new Date(booking.booking_date).toLocaleDateString()}
@@ -112,7 +111,7 @@ const ManageBookings = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-500">
                   <button
                     className="bg-yellow-500 text-black px-3 py-1 rounded-md hover:bg-yellow-600 transition"
-                    onClick={() => handleViewDetails(booking.id)}
+                    onClick={() => router.push(`/admin/bookings/${booking.id}`)}
                   >
                     View
                   </button>
