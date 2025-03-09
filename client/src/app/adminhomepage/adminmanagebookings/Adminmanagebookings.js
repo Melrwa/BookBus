@@ -12,7 +12,7 @@ const ManageBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("/api/admin/bookings", {
+        const response = await fetch("api/admin/bookings", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
