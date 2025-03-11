@@ -1,5 +1,5 @@
+'use client'
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 export default function DriverHomepage() {
   const [view, setView] = useState('allBuses'); // State to manage which card is active
@@ -11,8 +11,10 @@ export default function DriverHomepage() {
   const fetchAllBuses = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/driver/all_buses'); // Replace with your actual endpoint
-      setAllBuses(response.data);
+      const response = await fetch('/api/admin/my_buses'); // Replace with your actual endpoint
+      if (!response.ok) throw new Error('Failed to fetch all buses');
+      const data = await response.json();
+      setAllBuses(data);
     } catch (error) {
       console.error('Error fetching all buses:', error);
     } finally {
@@ -24,9 +26,11 @@ export default function DriverHomepage() {
   const fetchAssignedBuses = async () => {
     setLoading(true);
     try {
-      const driverId = 1; // Replace with the actual driver ID (e.g., from authentication)
-      const response = await axios.get(`/driver/my_assigned_bus?driver_id=${driverId}`);
-      setAssignedBuses(response.data);
+      const driverId = 11; // Replace with the actual driver ID (e.g., from authentication)
+      const response = await fetch(`/api/driver/my_assigned_bus?driver_id=${driverId}`);
+      if (!response.ok) throw new Error('Failed to fetch assigned buses');
+      const data = await response.json();
+      setAssignedBuses(data);
     } catch (error) {
       console.error('Error fetching assigned buses:', error);
     } finally {
@@ -37,10 +41,34 @@ export default function DriverHomepage() {
   // Update bus details (price, route, schedule, etc.)
   const updateBus = async (busId, updatedData) => {
     try {
-      await axios.put(`/driver/update_bus/${busId}`, updatedData);
+      const response = await fetch(`/api/driver/update_bus/${busId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (!response.ok) throw new Error('Failed to update bus');
       fetchAllBuses(); // Refresh the list after updating
     } catch (error) {
       console.error('Error updating bus:', error);
+    }
+  };
+
+  // Add a new bus
+  const addBus = async (newBusData) => {
+    try {
+      const response = await fetch('/api/driver/add_bus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBusData),
+      });
+      if (!response.ok) throw new Error('Failed to add bus');
+      fetchAllBuses(); // Refresh the list after adding
+    } catch (error) {
+      console.error('Error adding bus:', error);
     }
   };
 
@@ -48,7 +76,7 @@ export default function DriverHomepage() {
   useEffect(() => {
     if (view === 'allBuses') {
       fetchAllBuses();
-    } else {
+    } else if (view === 'assignedBuses') {
       fetchAssignedBuses();
     }
   }, [view]);
@@ -75,6 +103,14 @@ export default function DriverHomepage() {
         >
           My Assigned Buses
         </button>
+        <button
+          onClick={() => setView('addBus')}
+          className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+            view === 'addBus' ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-yellow-500 hover:bg-gray-700'
+          }`}
+        >
+          Add Bus
+        </button>
       </div>
 
       {/* Content Section */}
@@ -85,8 +121,10 @@ export default function DriverHomepage() {
           </div>
         ) : view === 'allBuses' ? (
           <AllBusesView buses={allBuses} onUpdateBus={updateBus} />
-        ) : (
+        ) : view === 'assignedBuses' ? (
           <AssignedBusesView buses={assignedBuses} />
+        ) : (
+          <AddBusForm onAddBus={addBus} />
         )}
       </div>
     </div>
@@ -208,5 +246,71 @@ function AssignedBusesView({ buses }) {
         <p className="text-yellow-500">No buses assigned to you.</p>
       )}
     </div>
+  );
+}
+
+// Component to add a new bus
+function AddBusForm({ onAddBus }) {
+  const [formData, setFormData] = useState({
+    number_of_seats: '',
+    cost_per_seat: '',
+    route: '',
+    departure_time: '',
+    arrival_time: '',
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onAddBus(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 className="text-2xl font-bold mb-4">Add New Bus</h2>
+      <input
+        type="number"
+        value={formData.number_of_seats}
+        onChange={(e) => setFormData({ ...formData, number_of_seats: e.target.value })}
+        className="w-full p-2 bg-gray-600 text-yellow-500 rounded-lg"
+        placeholder="Number of Seats"
+        required
+      />
+      <input
+        type="number"
+        value={formData.cost_per_seat}
+        onChange={(e) => setFormData({ ...formData, cost_per_seat: e.target.value })}
+        className="w-full p-2 bg-gray-600 text-yellow-500 rounded-lg"
+        placeholder="Cost per Seat"
+        required
+      />
+      <input
+        type="text"
+        value={formData.route}
+        onChange={(e) => setFormData({ ...formData, route: e.target.value })}
+        className="w-full p-2 bg-gray-600 text-yellow-500 rounded-lg"
+        placeholder="Route"
+        required
+      />
+      <input
+        type="datetime-local"
+        value={formData.departure_time}
+        onChange={(e) => setFormData({ ...formData, departure_time: e.target.value })}
+        className="w-full p-2 bg-gray-600 text-yellow-500 rounded-lg"
+        required
+      />
+      <input
+        type="datetime-local"
+        value={formData.arrival_time}
+        onChange={(e) => setFormData({ ...formData, arrival_time: e.target.value })}
+        className="w-full p-2 bg-gray-600 text-yellow-500 rounded-lg"
+        required
+      />
+      <button
+        type="submit"
+        className="mt-2 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition-colors"
+      >
+        Add Bus
+      </button>
+    </form>
   );
 }
