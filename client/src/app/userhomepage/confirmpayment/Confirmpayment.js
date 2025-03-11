@@ -7,7 +7,8 @@ export default function ConfirmPayment() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [loading, setLoading] = useState(true); // Add loading state
   const router = useRouter();
-  const { bookingId } = router.query;
+  const bookingId  = router.query.bookingId;
+
 
   // Set loading to false once bookingId is available
   useEffect(() => {

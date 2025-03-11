@@ -11,7 +11,8 @@ export default function SelectSeats() {
   const [bus, setBus] = useState(null);
   const [loading, setLoading] = useState(true); // Add loading state
   const router = useRouter();
-  const { busId } = router.query;
+  const busId = router.query.busId; // Get busId from query
+
 
   // Fetch available seats
   useEffect(() => {
