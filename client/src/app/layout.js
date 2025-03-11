@@ -23,43 +23,50 @@ export default function RootLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch role from localStorage or cookies
-    const storedRole = localStorage.getItem("role"); // Assuming role is stored in localStorage
-    if (storedRole) {
-      setRole(storedRole);
+    // Check if we are in the browser
+    if (typeof window !== "undefined") {
+      // Fetch role from localStorage
+      const storedRole = localStorage.getItem("role");
+      if (storedRole) {
+        setRole(storedRole);
 
-      // Redirect based on role
-      switch (storedRole) {
-        case "admin":
-          router.push("/adminhomepage");
-          break;
-        case "driver":
-          router.push("/driverhomepage");
-          break;
-        case "customer":
-          router.push("/userhomepage");
-          break;
-        default:
-          router.push("/"); // Guest homepage
-          break;
+        // Redirect based on role
+        switch (storedRole) {
+          case "admin":
+            router.push("/adminhomepage");
+            break;
+          case "driver":
+            router.push("/driverhomepage");
+            break;
+          case "customer":
+            router.push("/userhomepage");
+            break;
+          default:
+            router.push("/"); // Guest homepage
+            break;
+        }
+      } else {
+        router.push("/"); // Redirect to signup if no role is found
       }
-    } else {
-      router.push("/"); // Redirect to signup if no role is found
     }
   }, [router]);
 
   const renderNav = () => {
-    const role = localStorage.getItem('role'); 
-    switch (role) {
-      case "admin":
-        return <AdminNav />;
-      case "driver":
-        return <DriverNav />;
-      case "customer":
-        return <UserNav />;
-      default:
-        return <GuestNav />;
+    // Check if we are in the browser
+    if (typeof window !== "undefined") {
+      const role = localStorage.getItem('role'); 
+      switch (role) {
+        case "admin":
+          return <AdminNav />;
+        case "driver":
+          return <DriverNav />;
+        case "customer":
+          return <UserNav />;
+        default:
+          return <GuestNav />;
+      }
     }
+    return <GuestNav />; // Default to GuestNav if not in the browser
   };
 
   return (
