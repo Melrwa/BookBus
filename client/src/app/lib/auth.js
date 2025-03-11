@@ -26,7 +26,7 @@ export const checkSession = async () => {
 export const logout = async () => {
   try {
     const response = await fetch('/api/logout', {
-      method: 'POST',
+      method: 'DELETE',
       credentials: 'include', // Include cookies for session-based auth
     });
 

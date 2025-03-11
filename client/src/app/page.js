@@ -1,71 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
-// Define the BookingModal component
-const BookingModal = ({ bus, onClose, onSubmit }) => {
-  const [seatNumber, setSeatNumber] = useState("");
-  const [customerId, setCustomerId] = useState("");
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!seatNumber || !customerId) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    try {
-      await onSubmit({ bus_id: bus.id, seat_number: seatNumber, customer_id: customerId });
-      onClose(); // Close the modal on success
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
+// Define the SignupLoginPrompt component
+const SignupLoginPrompt = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-gray-800 p-6 rounded-lg w-96">
-        <h2 className="text-xl font-bold text-yellow-500 mb-4">Book a Seat</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-yellow-500 mb-2">Customer ID</label>
-            <input
-              type="text"
-              value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 text-white"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-yellow-500 mb-2">Seat Number</label>
-            <input
-              type="number"
-              value={seatNumber}
-              onChange={(e) => setSeatNumber(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 text-white"
-              required
-            />
-          </div>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-green-500 px-4 py-2 rounded"
-            >
-              Book
-            </button>
-          </div>
-        </form>
+        <h2 className="text-xl font-bold text-yellow-500 mb-4">Signup or Login Required</h2>
+        <p className="text-white mb-4">You need to sign up or log in to book a bus.</p>
+        <div className="flex justify-end gap-2">
+          <Link
+            href="/signup"
+            className="bg-green-500 px-4 py-2 rounded"
+          >
+            Signup
+          </Link>
+          <Link
+            href="/login"
+            className="bg-blue-500 px-4 py-2 rounded"
+          >
+            Login
+          </Link>
+          <button
+            onClick={onClose}
+            className="bg-gray-500 px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -75,7 +39,7 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedBus, setSelectedBus] = useState(null); // Track the selected bus for booking
+  const [showSignupLoginPrompt, setShowSignupLoginPrompt] = useState(false); // Track whether to show the signup/login prompt
 
   // Fetch available buses when the component mounts
   useEffect(() => {
@@ -157,29 +121,10 @@ export default function Home() {
     }
   };
 
-  // Handle booking submission
-  const handleBookSeat = async (bookingData) => {
-    try {
-      const response = await fetch("/api/user/book_seat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to book seat.");
-      }
-
-      const data = await response.json();
-      console.log("Booking successful:", data);
-      alert("Booking successful!");
-    } catch (err) {
-      console.error("Booking error:", err);
-      throw err;
-    }
+  // Handle bus selection
+  const handleSelectBus = () => {
+    // Show the signup/login prompt
+    setShowSignupLoginPrompt(true);
   };
 
   return (
@@ -266,7 +211,7 @@ export default function Home() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedBus(bus)}
+                  onClick={handleSelectBus}
                   className="bg-red-500 px-4 py-2 rounded"
                 >
                   Select
@@ -285,12 +230,10 @@ export default function Home() {
         )}
       </div>
 
-      {/* Booking Modal */}
-      {selectedBus && (
-        <BookingModal
-          bus={selectedBus}
-          onClose={() => setSelectedBus(null)}
-          onSubmit={handleBookSeat}
+      {/* Signup/Login Prompt */}
+      {showSignupLoginPrompt && (
+        <SignupLoginPrompt
+          onClose={() => setShowSignupLoginPrompt(false)}
         />
       )}
 
