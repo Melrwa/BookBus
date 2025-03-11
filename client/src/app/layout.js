@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
         case "driver":
           router.push("/driverhomepage");
           break;
-        case "user":
+        case "customer":
           router.push("/userhomepage");
           break;
         default:
@@ -49,12 +49,13 @@ export default function RootLayout({ children }) {
   }, [router]);
 
   const renderNav = () => {
+    const role = localStorage.getItem('role'); 
     switch (role) {
       case "admin":
         return <AdminNav />;
       case "driver":
         return <DriverNav />;
-      case "user":
+      case "customer":
         return <UserNav />;
       default:
         return <GuestNav />;

@@ -22,16 +22,12 @@ export default function DriverNav() {
           <span className="text-xl font-bold">Bus</span>
         </div>
       </div>
-      <div className="space-x-6">
-          <a href="driverhomepage" className="hover:text-yellow-400 text-white">Home</a>
-          <a href="driverhomepage/drivermanagebuses" className="hover:text-yellow-400 text-white">Buses</a>
-          <a href="/driverhomepage/driverprofile" className="hover:text-yellow-400 text-white">Profile</a>
-        </div>
-      <div className="space-x-4 text">
-      
-      <button
+     
+      <div className="space-x-4">
+        <Link className=" hover:text-[#F4A900] text-white px-4 py-2 rounded" href="/driverhomepage">Driver DashBoard</Link>
+        <button
         onClick={handleLogout}
-        className="hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded">Logout</button  >
+        className="hover:bg-yellow-700 bg-[#F4A900] text-black px-4 py-2 rounded">Logout</button  > 
       </div>
     </nav>
   );

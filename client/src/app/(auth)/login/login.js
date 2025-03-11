@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { FaUnlockAlt, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
@@ -36,26 +35,32 @@ export default function Login() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Read the response as text
+        const errorText = await response.text();
         throw new Error(errorText || 'Login failed. Please check your credentials.');
       }
 
-      const data = await response.json(); // Parse the response as JSON
-
-      console.log('Login successful:', data);
+      const data = await response.json();
 
       // Store user details in localStorage
-      localStorage.setItem('token', data.token); // Store the token
-      localStorage.setItem('role', data.user.role); // Store the user's role
-      localStorage.setItem('email', data.user.email); // Store the user's email
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.user.role);
+      localStorage.setItem('email', data.user.email);
 
-      // Clear form and show success message
-      setEmail('');
-      setPassword('');
-      setSuccessMessage('Login successful! Redirecting...');
-
-      // Redirect to the user homepage
-      router.push('/userhomepage');
+      // Redirect based on role
+      switch (data.user.role) {
+        case 'admin':
+          router.push('/adminhomepage');
+          break;
+        case 'driver':
+          router.push('/driverhomepage');
+          break;
+        case 'customer':
+          router.push('/userhomepage');
+          break;
+        default:
+          router.push('/');
+          break;
+      }
     } catch (error) {
       console.error('Login error:', error.message);
       setErrorMessage(error.message || 'Login failed. Please try again.');

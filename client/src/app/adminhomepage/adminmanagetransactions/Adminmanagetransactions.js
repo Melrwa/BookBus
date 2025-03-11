@@ -11,7 +11,7 @@ const TransactionsTable = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("/api/admin/transactions"); // No auth token
+        const response = await fetch("/api/admin/transactions");
 
         if (!response.ok) {
           throw new Error("Failed to fetch transactions.");
@@ -35,7 +35,11 @@ const TransactionsTable = () => {
   }, []);
 
   if (loading) {
-    return <p className="text-gray-400 mt-4">Loading transactions...</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -54,45 +58,39 @@ const TransactionsTable = () => {
             <thead className="bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  User
+                  Transaction ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  Schedule
+                  Booking ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  Route
+                  Amount Paid (Ksh)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  Bus
+                  Payment Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  Company
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-500 uppercase tracking-wider">
-                  Amount (Ksh)
+                  Payment Method
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {transactions.map((transaction, index) => (
-                <tr key={index} className="hover:bg-gray-750 transition">
+              {transactions.map((transaction) => (
+                <tr key={transaction.id} className="hover:bg-gray-750 transition">
                   <td className="px-6 py-4 text-sm text-yellow-500">
-                    {transaction.user_id || transaction.userId || "N/A"}
+                    {transaction.id || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm text-yellow-500">
-                    {transaction.schedule_id || transaction.scheduleId || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-yellow-500">
-                    {transaction.route || transaction.route_name || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-yellow-500">
-                    {transaction.bus_id || transaction.busNumber || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-yellow-500">
-                    {transaction.company_id || transaction.companyName || "N/A"}
+                    {transaction.booking_id || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm font-semibold text-yellow-400">
-                    Ksh {transaction.total_amount?.toFixed(2) || "0.00"}
+                    Ksh {transaction.amount_paid?.toFixed(2) || "0.00"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-yellow-500">
+                    {transaction.payment_date || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-yellow-500">
+                    {transaction.payment_method || "N/A"}
                   </td>
                 </tr>
               ))}

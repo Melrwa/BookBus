@@ -67,7 +67,7 @@ const AdminDashboard = () => {
           title="Manage Drivers"
           color="bg-purple-800"
           icon="🧑‍✈️"
-          onClick={() => navigateTo("/adminhomepage/adminmanagedrivers")}
+          onClick={() => navigateTo("/adminhomepage/adminmanagedriver")}
         />
 
         {/* View Transactions */}

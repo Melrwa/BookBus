@@ -16,7 +16,6 @@ export default function GuestNav() {
       </div>
       <div className="space-x-14 text-white">
         <Link className="hover:text-[#F4A900]" href="/">Home</Link>
-        <Link className="hover:text-[#F4A900]" href="/bookings">Bookings</Link>
         <Link className="hover:text-[#F4A900]" href="/aboutus">About</Link>
       </div>
       <div className="space-x-6 text-white">

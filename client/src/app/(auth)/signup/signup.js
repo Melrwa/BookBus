@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { FaUserPlus, FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
@@ -10,7 +9,7 @@ export default function Signup() {
     name: '',
     email: '',
     password: '',
-    role: 'customer', // Hardcoded role as 'customer'
+    role: 'customer', // Default role is 'user'
   });
 
   const [uploading, setUploading] = useState(false);
@@ -41,11 +40,11 @@ export default function Signup() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Read the response as text
+        const errorText = await response.text();
         throw new Error(errorText || 'Signup failed. Please try again.');
       }
 
-      const result = await response.json(); // Parse the response as JSON
+      const result = await response.json();
       setSuccessMessage('Signup successful! Redirecting...');
       setErrorMessage('');
       setFormData({
@@ -55,6 +54,7 @@ export default function Signup() {
         role: 'customer',
       });
 
+      // Redirect to userhomepage
       router.push('/userhomepage');
     } catch (error) {
       console.error('Signup failed:', error.message);

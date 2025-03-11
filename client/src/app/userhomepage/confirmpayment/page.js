@@ -1,10 +1,10 @@
 import React from 'react'
-import Bookbus from './bookingbus'
+import ConfirmPayment from './Confirmpayment'
 
 export default function page() {
   return (
     <div>
-      <Bookbus  />
+        <ConfirmPayment />
     </div>
   )
 }

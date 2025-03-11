@@ -1,10 +1,10 @@
 import React from 'react'
-import Selectseat from './selectseat'
+import SelectSeats from './Selectseat'
 
 export default function page() {
   return (
     <div>
-      <Selectseat />
+      <SelectSeats />
     </div>
   )
 }
