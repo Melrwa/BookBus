@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 
 export default function ConfirmPayment() {
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const bookingId  = router.query.bookingId;
-
+  const { search } = router; // Get the search parameters from the router
+  const bookingId = new URLSearchParams(search).get("bookingId"); // Extract bookingId from the query string
 
   // Set loading to false once bookingId is available
   useEffect(() => {

@@ -1,18 +1,18 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
 
 export default function SelectSeats() {
   const [availableSeats, setAvailableSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [bus, setBus] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const busId = router.query.busId; // Get busId from query
-
+  const { search } = router; // Get the search parameters from the router
+  const busId = new URLSearchParams(search).get("busId"); // Extract busId from the query string
 
   // Fetch available seats
   useEffect(() => {
@@ -29,6 +29,25 @@ export default function SelectSeats() {
     };
 
     fetchAvailableSeats();
+  }, [busId]);
+
+  // Fetch bus details
+  useEffect(() => {
+    if (!busId) return; // Exit if busId is not yet available
+
+    const fetchBusDetails = async () => {
+      try {
+        const response = await fetch(`/api/buses/${busId}`);
+        const data = await response.json();
+        setBus(data);
+      } catch (err) {
+        console.error("Failed to fetch bus details:", err);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    fetchBusDetails();
   }, [busId]);
 
   // Fetch bus details
