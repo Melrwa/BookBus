@@ -1,118 +1,79 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SelectSeats() {
-  const [availableSeats, setAvailableSeats] = useState([]);
-  const [selectedSeats, setSelectedSeats] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [bus, setBus] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
+  const [selectedSeat, setSelectedSeat] = useState(null); // Track the selected seat
+  const [showForm, setShowForm] = useState(false); // Control form visibility
+  const [customerId, setCustomerId] = useState(""); // Keep only customerId
   const [error, setError] = useState("");
-  const router = useRouter();
-  const { search } = router; // Get the search parameters from the router
-  const busId = new URLSearchParams(search).get("busId"); // Extract busId from the query string
+  const [success, setSuccess] = useState("");
 
-  // Fetch available seats
-  useEffect(() => {
-    if (!busId) return; // Exit if busId is not yet available
-
-    const fetchAvailableSeats = async () => {
-      try {
-        const response = await fetch(`/api/buses/${busId}/seats`);
-        const data = await response.json();
-        setAvailableSeats(data.available_seats);
-      } catch (err) {
-        console.error("Failed to fetch available seats:", err);
-      }
-    };
-
-    fetchAvailableSeats();
-  }, [busId]);
-
-  // Fetch bus details
-  useEffect(() => {
-    if (!busId) return; // Exit if busId is not yet available
-
-    const fetchBusDetails = async () => {
-      try {
-        const response = await fetch(`/api/buses/${busId}`);
-        const data = await response.json();
-        setBus(data);
-      } catch (err) {
-        console.error("Failed to fetch bus details:", err);
-      } finally {
-        setLoading(false); // Set loading to false after fetching
-      }
-    };
-
-    fetchBusDetails();
-  }, [busId]);
+  // Dummy list of available seats (replace with your actual data)
+  const availableSeats = Array.from({ length: 20 }, (_, i) => i + 1);
 
   // Handle seat selection
-  const handleSelectSeat = (seatNumber) => {
-    if (selectedSeats.includes(seatNumber)) {
-      setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
-    } else {
-      setSelectedSeats([...selectedSeats, seatNumber]);
-    }
+  const handleSelectSeat = (seat) => {
+    setSelectedSeat(seat);
+    setShowForm(true); // Show the form when a seat is selected
   };
-
-  // Calculate total amount
-  useEffect(() => {
-    if (bus) {
-      setTotalAmount(selectedSeats.length * bus.cost_per_seat);
-    }
-  }, [selectedSeats, bus]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validate form inputs
-    if (!customerName || !customerEmail || selectedSeats.length === 0) {
-      setError("Please fill in all fields and select at least one seat.");
+    if (!customerId || !selectedSeat) {
+      setError("Please fill in all fields and select a seat.");
       return;
     }
-
+  
+    const bookingData = {
+      customer_id: customerId,
+      bus_id: 1, // Replace with the actual bus ID (e.g., from the URL or state)
+      seat_number: selectedSeat,
+    };
+  
+    console.log("Booking Data:", bookingData); // Log the booking data
+  
     try {
-      const response = await fetch("/api/bookings", {
+      const response = await fetch("/api/simple-booking", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          customer_name: customerName,
-          customer_email: customerEmail,
-          bus_id: busId,
-          seat_numbers: selectedSeats,
-        }),
+        body: JSON.stringify(bookingData),
       });
-
+  
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to book seats.");
+        throw new Error(data.message || "Failed to book seat.");
       }
-
+  
       const data = await response.json();
-      router.push(`/userhomepage/confirmpayment?bookingId=${data.booking_id}`);
+  
+      // Reset form and show success message
+      setCustomerId("");
+      setSelectedSeat(null);
+      setShowForm(false);
+      setSuccess("Booking successful!");
+      setError("");
     } catch (err) {
       console.error("Booking error:", err);
       setError(err.message);
     }
   };
 
-  // Show loading state while waiting for busId
-  if (!busId || loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-black">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-      </div>
-    );
-  }
+  // Use useEffect to automatically clear the success message after 3 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess("");
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup the timer on component unmount
+    }
+  }, [success]);
 
   return (
     <div className="bg-black text-white min-h-screen p-6">
@@ -125,7 +86,7 @@ export default function SelectSeats() {
             key={seat}
             onClick={() => handleSelectSeat(seat)}
             className={`p-4 rounded-lg text-center ${
-              selectedSeats.includes(seat)
+              selectedSeat === seat
                 ? "bg-blue-500 text-white"
                 : "bg-green-500 text-white"
             }`}
@@ -135,41 +96,51 @@ export default function SelectSeats() {
         ))}
       </div>
 
-      {/* Booking Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-yellow-500 mb-2">Customer Name</label>
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white"
-            required
-          />
+      {/* Booking Form Popup */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold text-yellow-500 mb-4">Book Seat {selectedSeat}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-yellow-500 mb-2">Your ID</label>
+                <input
+                  type="text"
+                  value={customerId}
+                  onChange={(e) => setCustomerId(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 text-white"
+                  placeholder="Enter your ID"
+                  required
+                />
+              </div>
+              {error && <p className="text-red-500">{error}</p>}
+              {success && <p className="text-green-500">{success}</p>}
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="bg-gray-500 px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-500 px-4 py-2 rounded"
+                >
+                  Book Now
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div>
-          <label className="block text-yellow-500 mb-2">Customer Email</label>
-          <input
-            type="email"
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white"
-            required
-          />
+      )}
+
+      {/* Success Message Popup */}
+      {success && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg">
+          {success}
         </div>
-        <div>
-          <p className="text-xl font-semibold text-yellow-500">
-            Total Amount: Ksh {totalAmount.toFixed(2)}
-          </p>
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
-        <button
-          type="submit"
-          className="mt-4 bg-red-500 px-6 py-2 rounded-lg text-white"
-        >
-          Book Seats
-        </button>
-      </form>
+      )}
     </div>
   );
 }
